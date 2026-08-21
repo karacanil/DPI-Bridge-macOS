@@ -5,14 +5,12 @@ struct ContentView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            // Header
             HeaderView()
 
-            // Tab View
             TabView(selection: $appState.selectedTab) {
                 ByeDPIView()
                     .tabItem {
-                        Label("ByeDPI", systemImage: "shield.checkered")
+                        Label("Discord", systemImage: "message.fill")
                     }
                     .tag(1)
 
@@ -24,8 +22,6 @@ struct ContentView: View {
             }
             .padding()
 
-            // Status Bar
-            StatusBarView()
         }
         .preferredColorScheme(appState.isDarkMode ? .dark : .light)
     }
@@ -36,7 +32,6 @@ struct HeaderView: View {
 
     var body: some View {
         HStack {
-            // Logo and Title
             VStack(alignment: .leading, spacing: 4) {
                 Text("SplitWire-Turkey")
                     .font(.title)
@@ -48,46 +43,14 @@ struct HeaderView: View {
 
             Spacer()
 
-            // Language Picker
-            Picker("", selection: $appState.selectedLanguage) {
-                ForEach(AppState.Language.allCases, id: \.self) { lang in
-                    Text(lang.rawValue).tag(lang)
-                }
-            }
-            .pickerStyle(.menu)
-            .frame(width: 120)
-
-            // Dark Mode Toggle
             Toggle("", isOn: $appState.isDarkMode)
                 .toggleStyle(.switch)
                 .labelsHidden()
                 .onChange(of: appState.isDarkMode) { _ in
-                    appState.saveSettings()
+                    appState.saveAppearance()
                 }
         }
         .padding()
-        .background(Color(NSColor.controlBackgroundColor))
-    }
-}
-
-struct StatusBarView: View {
-    @EnvironmentObject var appState: AppState
-
-    var body: some View {
-        HStack {
-            if appState.isLoading {
-                ProgressView()
-                    .scaleEffect(0.7)
-            }
-
-            Text(appState.statusMessage)
-                .font(.caption)
-                .foregroundColor(.secondary)
-
-            Spacer()
-        }
-        .padding(.horizontal)
-        .padding(.vertical, 8)
         .background(Color(NSColor.controlBackgroundColor))
     }
 }

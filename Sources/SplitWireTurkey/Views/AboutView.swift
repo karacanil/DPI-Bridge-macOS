@@ -26,10 +26,10 @@ struct AboutView: View {
                 // Description
                 GroupBox(label: Label("Hakkında", systemImage: "info.circle.fill")) {
                     VStack(alignment: .leading, spacing: 12) {
-                        Text("SplitWire-Turkey, Türkiye'deki internet kullanıcıları için özel olarak tasarlanmış bir DPI aşımı ve tünelleme uygulamasıdır.")
+                        Text("SplitWire-Turkey, macOS üzerinde Discord bağlantısını hazırlayan açık kaynaklı bir yardımcı uygulamadır.")
                             .fixedSize(horizontal: false, vertical: true)
 
-                        Text("Bu macOS versiyonu, orijinal Windows uygulamasının temel özelliklerini macOS platformuna taşır.")
+                        Text("ByeDPI'ı ve Discord güncelleyici köprüsünü yalnızca localhost üzerinde çalıştırır; isteğe bağlı şifreli DNS profilini kullanıcı onayıyla açar.")
                             .fixedSize(horizontal: false, vertical: true)
                             .foregroundColor(.secondary)
                     }
@@ -41,7 +41,6 @@ struct AboutView: View {
                     VStack(alignment: .leading, spacing: 8) {
                         FeatureRow(icon: "shield.checkered", text: "ByeDPI ile DPI aşımı (SOCKS5 proxy)")
                         FeatureRow(icon: "lock.shield", text: "İsteğe bağlı şifreli DNS profili")
-                        FeatureRow(icon: "folder.badge.plus", text: "Özelleştirilebilir uygulama listesi")
                         FeatureRow(icon: "command", text: "Discord ve güncelleyici için otomatik proxy")
                     }
                     .padding()

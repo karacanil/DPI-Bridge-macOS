@@ -5,7 +5,7 @@
 ```text
 Sources/
 ├── SplitWireTurkey/
-│   ├── Models/                  Uygulama durumu ve yerel tercihler
+│   ├── Models/                  Görünüm tercihi
 │   ├── Services/                ByeDPI ve macOS entegrasyonları
 │   ├── Views/                   SwiftUI ekranları
 │   └── Resources/bin/ciadpi     Universal ByeDPI binary
@@ -47,5 +47,6 @@ notarizasyonu için [RELEASE-CHECKLIST.md](RELEASE-CHECKLIST.md) kullanılmalıd
 - Kullanıcı girdisi shell komut metnine eklenmez.
 - Kalıcı sistem değişiklikleri açık kullanıcı onayı gerektirir.
 - Proxy süreçleri uygulama durdurulduğunda kapatılır.
+- Uygulama başka süreçleri ad veya port üzerinden zorla kapatmaz.
 - Repo telemetri, token veya özel anahtar içermez.
 - Doğrulanmamış WireGuard ve düz DNS değiştirme kodu dağıtıma dahil edilmez.

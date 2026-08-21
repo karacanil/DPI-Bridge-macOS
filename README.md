@@ -1,9 +1,12 @@
 # SplitWire Turkey for macOS
 
-SplitWire Turkey, Discord'a erişimde kullanılan açık kaynaklı bir macOS
-uygulamasıdır. ByeDPI'ı yönetir, Discord'u gerekli proxy ayarlarıyla başlatır ve
-Discord güncelleyicisinin **Checking for Updates** ekranında kalmasını önlemek
-için yerel bir bağlantı köprüsü çalıştırır.
+SplitWire Turkey, macOS üzerinde Discord bağlantısı için geliştirilmiş açık
+kaynaklı bir yardımcı uygulamadır. Bu fork tek bir doğrulanmış akışa odaklanır:
+
+- zehirlenmiş DNS yanıtlarını şifreli DNS profiliyle aşmak,
+- Discord/Electron trafiğini ByeDPI SOCKS5 proxy'sinden geçirmek,
+- Discord güncelleyicisinin **Checking for Updates** ekranında kalmasını yerel
+  HTTP→SOCKS köprüsüyle önlemek.
 
 Uygulama hesap parolası, mesaj, çerez veya ağ trafiği kaydetmez.
 
@@ -16,7 +19,7 @@ Geliştirici araçlarına veya Python'a ihtiyaç yoktur.
 3. Uygulamaya sağ tıklayıp **Aç** seçeneğini kullan.
 4. Uygulamada **Şifreli DNS Profilini Aç** düğmesine bas.
 5. Sistem Ayarları → Genel → Aygıt Yönetimi altında profili bir kez yükle.
-6. Ana ekrandaki **Discord** düğmesine bas.
+6. Ana ekrandaki **Discord'u Başlat** düğmesine bas.
 
 Şifreli DNS profili yalnızca alan adı çözümlemeyi Cloudflare DNS over HTTPS'e
 taşır. Profil kaldırılabilir; parola veya kullanıcıya özel bilgi içermez.
@@ -36,6 +39,10 @@ DNS sorguları ──şifreli DNS──▶ Cloudflare
 İki yerel proxy yalnızca bilgisayarın kendisinden erişilebilen `127.0.0.1`
 adresinde dinler. Güncelleyici köprüsü yalnızca Discord alan adlarına ve HTTPS
 portu `443`e izin verir.
+
+Uygulama sistem genelindeki proxy ayarlarını değiştirmez, başka uygulamaların
+trafiğini yönlendirmez ve HTTPS içeriğini çözmez. **Durdur** düğmesi de yalnızca
+uygulamanın kendisinin başlattığı iki yardımcı süreci kapatır.
 
 Teknik ayrıntılar ve elle yeniden üretim adımları için
 [Discord bağlantı çözümü](DISCORD-BAGLANTI-COZUMU.md) belgesine bak.
@@ -63,6 +70,16 @@ Tam geri alma ve doğrulama adımları
 - Intel veya Apple Silicon Mac
 - `/Applications/Discord.app` altında kurulu Discord
 
+## Sorun giderme
+
+- **Checking for Updates geçilmiyorsa:** DNS profilinin Sistem Ayarları'nda
+  gerçekten yüklendiğini doğrula, Discord'u tamamen kapat ve uygulamadaki
+  **Discord'u Başlat** düğmesini yeniden kullan.
+- **1080 veya 1081 portu kullanımdaysa:** diğer proxy uygulamasını kapat. Proje
+  bilinmeyen süreçleri otomatik olarak sonlandırmaz.
+- **Discord bulunamadıysa:** Discord'u DMG içinden çalıştırmak yerine
+  `/Applications` klasörüne taşı.
+
 ## Kaynaktan derleme
 
 Gereksinimler: Xcode Command Line Tools ve Swift 5.9 veya daha yeni sürüm.
@@ -89,11 +106,13 @@ imzalanmalı ve Apple tarafından notarize edilmelidir; ayrıntılar
 
 Ayrıntılar: [PRIVACY.md](PRIVACY.md) ve [SECURITY.md](SECURITY.md).
 
-## Proje durumu
+## Kapsam
 
-Bu sürüm doğrulanmış ByeDPI + Discord bağlantısına odaklanır. Eski deneysel
-WireGuard ve düz DNS değiştirme bileşenleri, genel sürümde beklenmeyen sistem
-değişikliği oluşturmamaları için kaldırılmıştır.
+Bu fork genel amaçlı VPN, sistem proxy yöneticisi veya farklı uygulamalar için
+özel başlatıcı değildir. Yalnızca yukarıda anlatılan Discord bağlantı akışını
+sağlar. Upstream'deki deneysel WireGuard, düz DNS değiştirme, favori uygulamalar,
+menü çubuğu preset'leri ve sistem geneli proxy özellikleri bu sürüme dahil
+değildir.
 
 ## Katkı ve kaynaklar
 

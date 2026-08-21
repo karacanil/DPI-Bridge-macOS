@@ -4,9 +4,9 @@
 
 1. Release paketini indir ve uygulamayı **Applications** klasörüne taşı.
 2. Uygulamaya sağ tıklayıp **Aç** seçeneğini kullan.
-3. **ByeDPI** ekranında **Şifreli DNS Profilini Aç** düğmesine bas.
+3. **Discord** ekranında **Şifreli DNS Profilini Aç** düğmesine bas.
 4. Sistem Ayarları → Genel → Aygıt Yönetimi bölümünde profili yükle.
-5. Hızlı İşlemler alanındaki **Discord** düğmesine bas.
+5. **Discord'u Başlat** düğmesine bas.
 
 Uygulama ByeDPI'ı ve Discord güncelleyicisinin ihtiyaç duyduğu yerel köprüyü
 otomatik başlatır. İlk açılışta Discord modülleri indirildiği için işlem normalden
@@ -14,14 +14,8 @@ uzun sürebilir.
 
 ## Günlük kullanım
 
-- Discord'u SplitWire içindeki **Discord** düğmesiyle aç.
-- Bağlantı kurulmazsa önce **Disorder**, ardından **Split + Disorder** yöntemini
-  dene.
+- Discord'u SplitWire içindeki **Discord'u Başlat** düğmesiyle aç.
 - İşin bittiğinde **Durdur** düğmesiyle ByeDPI ve güncelleyici köprüsünü kapat.
-
-Sistem geneli proxy çoğu kullanıcı için gerekli değildir. Bu seçenek yalnızca
-ne yaptığını bilen kullanıcılar tarafından kullanılmalıdır; Discord düğmesi
-sistem proxy'sini değiştirmeden çalışır.
 
 ## Sorun giderme
 
@@ -29,8 +23,8 @@ sistem proxy'sini değiştirmeden çalışır.
 
 1. Şifreli DNS profilinin kurulu olduğunu kontrol et.
 2. Discord'u tamamen kapat.
-3. SplitWire'da ByeDPI'ı durdurup yeniden başlat.
-4. Discord düğmesine tekrar bas.
+3. SplitWire'da **Durdur** düğmesine bas.
+4. **Discord'u Başlat** düğmesine tekrar bas.
 
 ### Port kullanımda uyarısı
 

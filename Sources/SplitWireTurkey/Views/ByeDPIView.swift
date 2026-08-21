@@ -252,33 +252,21 @@ struct ByeDPIView: View {
                 // Advanced Settings
                 GroupBox(label: Label("Gelişmiş", systemImage: "gearshape.2.fill")) {
                     VStack(alignment: .leading, spacing: 8) {
-                        Text("Discord Ayarları")
+                        Text("Discord Bağlantı Hazırlığı")
                             .font(.headline)
 
-                        Text("Discord'un otomatik güncellemelerini devre dışı bırakmak için settings.json dosyasına şu satırları ekleyin:")
+                        Text("İnternet sağlayıcınız Discord alan adlarını yanlış yönlendiriyorsa şifreli DNS profilini bir kez kurun. Profil kaldırılabilir ve parola ya da trafik kaydı içermez.")
                             .font(.caption)
                             .foregroundColor(.secondary)
 
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text("\"SKIP_HOST_UPDATE\": true,")
-                                .font(.system(.caption, design: .monospaced))
-                            Text("\"SKIP_MODULE_UPDATE\": true")
-                                .font(.system(.caption, design: .monospaced))
-                        }
-                        .padding(8)
-                        .background(Color.secondary.opacity(0.1))
-                        .cornerRadius(6)
-
                         Button(action: {
-                            let settingsPath = "~/Library/Application Support/discord/settings.json"
-                            let command = "open -R '\(settingsPath)'"
                             Task {
-                                try? await ByeDPIService().executeShellCommand(command)
+                                await byedpiService.openEncryptedDNSProfile()
                             }
                         }) {
                             HStack {
-                                Image(systemName: "folder")
-                                Text("settings.json Klasörünü Aç")
+                                Image(systemName: "lock.shield")
+                                Text("Şifreli DNS Profilini Aç")
                             }
                         }
                         .buttonStyle(.bordered)

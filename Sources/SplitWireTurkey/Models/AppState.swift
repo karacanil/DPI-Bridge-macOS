@@ -8,17 +8,6 @@ class AppState: ObservableObject {
     @Published var isDarkMode = false
     @Published var selectedLanguage: Language = .turkish
 
-    // WireGuard State
-    @Published var isWireGuardConfigured = false
-    @Published var wireGuardStatus = "Yapılandırılmadı"
-
-    // Service States
-    @Published var installedServices: [String] = []
-
-    // Folder customization
-    @Published var customFolders: [String] = []
-    @Published var includeBrowsers = false
-
     // Favorite Apps for Quick Actions
     @Published var favoriteApps: [FavoriteApp] = []
 
@@ -46,7 +35,6 @@ class AppState: ObservableObject {
 
     init() {
         loadSettings()
-        checkServices()
     }
 
     func loadSettings() {
@@ -58,9 +46,6 @@ class AppState: ObservableObject {
            let lang = Language(rawValue: langRaw) {
             selectedLanguage = lang
         }
-
-        customFolders = UserDefaults.standard.stringArray(forKey: "customFolders") ?? []
-        includeBrowsers = UserDefaults.standard.bool(forKey: "includeBrowsers")
 
         // Load favorite apps
         if let data = UserDefaults.standard.data(forKey: "favoriteApps"),
@@ -77,9 +62,6 @@ class AppState: ObservableObject {
     func saveSettings() {
         UserDefaults.standard.set(isDarkMode, forKey: "isDarkMode")
         UserDefaults.standard.set(selectedLanguage.rawValue, forKey: "language")
-        UserDefaults.standard.set(customFolders, forKey: "customFolders")
-        UserDefaults.standard.set(includeBrowsers, forKey: "includeBrowsers")
-
         // Save favorite apps
         if let data = try? JSONEncoder().encode(favoriteApps) {
             UserDefaults.standard.set(data, forKey: "favoriteApps")
@@ -110,37 +92,4 @@ class AppState: ObservableObject {
         favoriteApps.contains { $0.path == appPath }
     }
 
-    func checkServices() {
-        // Check WireGuard status
-        Task {
-            await checkWireGuardStatus()
-        }
-    }
-
-    @MainActor
-    func checkWireGuardStatus() async {
-        // Check if WireGuard is configured
-        let configPath = FileManager.default.homeDirectoryForCurrentUser
-            .appendingPathComponent(".config/wireguard/wgcf.conf")
-
-        isWireGuardConfigured = FileManager.default.fileExists(atPath: configPath.path)
-        wireGuardStatus = isWireGuardConfigured ? "Yapılandırıldı" : "Yapılandırılmadı"
-    }
-
-    func addCustomFolder(_ folder: String) {
-        if !customFolders.contains(folder) {
-            customFolders.append(folder)
-            saveSettings()
-        }
-    }
-
-    func removeCustomFolder(_ folder: String) {
-        customFolders.removeAll { $0 == folder }
-        saveSettings()
-    }
-
-    func clearCustomFolders() {
-        customFolders.removeAll()
-        saveSettings()
-    }
 }

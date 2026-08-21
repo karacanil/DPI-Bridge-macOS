@@ -11,6 +11,7 @@ class ByeDPIService: ObservableObject {
     @Published var isSystemProxyEnabled = false
 
     private var process: Process?
+    private var proxyBridgeProcess: Process?
     private let ciadpiPath: String
 
     // Preset configurations
@@ -170,6 +171,8 @@ class ByeDPIService: ObservableObject {
         // Kill any running ciadpi processes
         _ = try? await executeShellCommand("pkill -9 -f ciadpi")
 
+        stopProxyBridge()
+
         // Wait a moment to ensure port is released
         try? await Task.sleep(nanoseconds: 500_000_000)
 
@@ -268,7 +271,11 @@ class ByeDPIService: ObservableObject {
 
             // Launch app with proxy
             do {
-                try await launchAppWithProxy(appPath: appPath, customArgs: customArgs)
+                if appPath == "/Applications/Discord.app" {
+                    try await launchDiscordWithProxy()
+                } else {
+                    try await launchAppWithProxy(appPath: appPath, customArgs: customArgs)
+                }
                 await showAlert(
                     title: "\(appName) Başlatıldı",
                     message: "\(appName) uygulaması ByeDPI proxy ile başlatıldı."
@@ -428,17 +435,17 @@ class ByeDPIService: ObservableObject {
             // Check if still running
             if !process.isRunning {
                 // Try to read any error output (non-blocking)
-                let errorData = try? errorPipe.fileHandleForReading.availableData
-                let outputData = try? outputPipe.fileHandleForReading.availableData
+                let errorData = errorPipe.fileHandleForReading.availableData
+                let outputData = outputPipe.fileHandleForReading.availableData
 
                 var errorMessage = "ByeDPI başlatılamadı (process durdu)"
 
-                if let errorData = errorData, !errorData.isEmpty,
+                if !errorData.isEmpty,
                    let errorOutput = String(data: errorData, encoding: .utf8), !errorOutput.isEmpty {
                     errorMessage += "\n\nHata çıktısı:\n\(errorOutput)"
                 }
 
-                if let outputData = outputData, !outputData.isEmpty,
+                if !outputData.isEmpty,
                    let stdOutput = String(data: outputData, encoding: .utf8), !stdOutput.isEmpty {
                     errorMessage += "\n\nÇıktı:\n\(stdOutput)"
                 }
@@ -478,8 +485,119 @@ class ByeDPIService: ObservableObject {
             )
         }
 
-        let command = "open -a '\(discordPath)' --args --proxy-server=socks5://127.0.0.1:1080 --ignore-certificate-errors"
-        _ = try await executeShellCommand(command)
+        try await startProxyBridge()
+
+        // Discord ignores new command-line arguments while an old instance is
+        // running. Ask it to quit before launching the proxied instance.
+        let runningDiscord = NSRunningApplication.runningApplications(
+            withBundleIdentifier: "com.hnc.Discord"
+        )
+        runningDiscord.forEach { $0.terminate() }
+        if !runningDiscord.isEmpty {
+            try? await Task.sleep(nanoseconds: 1_000_000_000)
+        }
+
+        let discordProcess = Process()
+        discordProcess.executableURL = URL(fileURLWithPath: discordPath)
+        discordProcess.arguments = [
+            "--proxy-server=socks5://127.0.0.1:1080",
+            "--disable-quic"
+        ]
+        var environment = ProcessInfo.processInfo.environment
+        let updaterProxy = "http://127.0.0.1:1081"
+        environment["HTTPS_PROXY"] = updaterProxy
+        environment["HTTP_PROXY"] = updaterProxy
+        environment["ALL_PROXY"] = updaterProxy
+        environment["https_proxy"] = updaterProxy
+        environment["http_proxy"] = updaterProxy
+        environment["all_proxy"] = updaterProxy
+        environment["NO_PROXY"] = "127.0.0.1,localhost"
+        environment["no_proxy"] = "127.0.0.1,localhost"
+        discordProcess.environment = environment
+        discordProcess.standardOutput = FileHandle.nullDevice
+        discordProcess.standardError = FileHandle.nullDevice
+        try discordProcess.run()
+    }
+
+    private func startProxyBridge() async throws {
+        if let proxyBridgeProcess, proxyBridgeProcess.isRunning {
+            return
+        }
+
+        let portCheck = try? await executeShellCommand("lsof -nP -iTCP:1081 -sTCP:LISTEN")
+        if let portCheck, !portCheck.isEmpty {
+            throw NSError(
+                domain: "ByeDPIService",
+                code: 6,
+                userInfo: [NSLocalizedDescriptionKey: "Port 1081 başka bir uygulama tarafından kullanılıyor."]
+            )
+        }
+
+        guard let bridgePath = findProxyBridgePath() else {
+            throw NSError(
+                domain: "ByeDPIService",
+                code: 7,
+                userInfo: [NSLocalizedDescriptionKey: "Discord güncelleyici proxy yardımcısı bulunamadı."]
+            )
+        }
+
+        let bridge = Process()
+        bridge.executableURL = URL(fileURLWithPath: bridgePath)
+        bridge.standardOutput = FileHandle.nullDevice
+        bridge.standardError = FileHandle.nullDevice
+        try bridge.run()
+        proxyBridgeProcess = bridge
+        try await Task.sleep(nanoseconds: 300_000_000)
+
+        guard bridge.isRunning else {
+            proxyBridgeProcess = nil
+            throw NSError(
+                domain: "ByeDPIService",
+                code: 8,
+                userInfo: [NSLocalizedDescriptionKey: "Discord güncelleyici proxy yardımcısı başlatılamadı."]
+            )
+        }
+    }
+
+    private func stopProxyBridge() {
+        guard let proxyBridgeProcess else { return }
+        if proxyBridgeProcess.isRunning {
+            proxyBridgeProcess.terminate()
+        }
+        self.proxyBridgeProcess = nil
+    }
+
+    private func findProxyBridgePath() -> String? {
+        var candidates: [String] = []
+        if let resourcePath = Bundle.main.resourcePath {
+            candidates.append("\(resourcePath)/bin/discord-http-proxy")
+        }
+        if let executablePath = Bundle.main.executablePath {
+            let executableDirectory = (executablePath as NSString).deletingLastPathComponent
+            candidates.append("\(executableDirectory)/discord-http-proxy")
+        }
+        return candidates.first { FileManager.default.isExecutableFile(atPath: $0) }
+    }
+
+    func openEncryptedDNSProfile() async {
+        var candidates: [String] = []
+        if let resourcePath = Bundle.main.resourcePath {
+            candidates.append("\(resourcePath)/profiles/SplitWire-Cloudflare-Encrypted-DNS.mobileconfig")
+        }
+        candidates.append(
+            FileManager.default.currentDirectoryPath +
+            "/SplitWire-Cloudflare-Encrypted-DNS.mobileconfig"
+        )
+
+        guard let profilePath = candidates.first(where: { FileManager.default.fileExists(atPath: $0) }) else {
+            await showAlert(title: "Hata", message: "Şifreli DNS profili uygulama paketinde bulunamadı.")
+            return
+        }
+
+        NSWorkspace.shared.open(URL(fileURLWithPath: profilePath))
+        if let settingsURL = URL(string: "x-apple.systempreferences:com.apple.preferences.configurationprofiles") {
+            NSWorkspace.shared.open(settingsURL)
+        }
     }
 
     private func launchAppWithProxy(appPath: String, customArgs: String? = nil) async throws {
@@ -495,12 +613,29 @@ class ByeDPIService: ObservableObject {
         if appPath.hasSuffix(".app") {
             // Use custom args if provided, otherwise use default proxy args
             let args = customArgs ?? "--proxy-server=socks5://127.0.0.1:1080"
-            let command = "open -a '\(appPath)' --args \(args)"
-            _ = try await executeShellCommand(command)
+            let task = Process()
+            task.executableURL = URL(fileURLWithPath: "/usr/bin/open")
+            task.arguments = ["-a", appPath, "--args"] + args.split(separator: " ").map(String.init)
+            task.standardOutput = FileHandle.nullDevice
+            task.standardError = FileHandle.nullDevice
+            try task.run()
+            task.waitUntilExit()
+            guard task.terminationStatus == 0 else {
+                throw NSError(
+                    domain: "ByeDPIService",
+                    code: Int(task.terminationStatus),
+                    userInfo: [NSLocalizedDescriptionKey: "Uygulama proxy ile başlatılamadı."]
+                )
+            }
         } else {
-            // For executables, just open
-            let command = "open '\(appPath)'"
-            _ = try await executeShellCommand(command)
+            let opened = NSWorkspace.shared.open(URL(fileURLWithPath: appPath))
+            if !opened {
+                throw NSError(
+                    domain: "ByeDPIService",
+                    code: 9,
+                    userInfo: [NSLocalizedDescriptionKey: "Uygulama açılamadı."]
+                )
+            }
         }
     }
 

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>PayloadContent</key>
+    <array>
+        <dict>
+            <key>DNSSettings</key>
+            <dict>
+                <key>DNSProtocol</key>
+                <string>HTTPS</string>
+                <key>ServerAddresses</key>
+                <array>
+                    <string>1.1.1.1</string>
+                    <string>1.0.0.1</string>
+                    <string>2606:4700:4700::1111</string>
+                    <string>2606:4700:4700::1001</string>
+                </array>
+                <key>ServerURL</key>
+                <string>https://cloudflare-dns.com/dns-query</string>
+            </dict>
+            <key>PayloadDescription</key>
+            <string>Cloudflare DNS over HTTPS</string>
+            <key>PayloadDisplayName</key>
+            <string>Cloudflare Encrypted DNS</string>
+            <key>PayloadIdentifier</key>
+            <string>com.splitwire.cloudflare-doh.settings</string>
+            <key>PayloadType</key>
+            <string>com.apple.dnsSettings.managed</string>
+            <key>PayloadUUID</key>
+            <string>0BD14A3D-B559-4D48-B45D-717DC4CAA223</string>
+            <key>PayloadVersion</key>
+            <integer>1</integer>
+        </dict>
+    </array>
+    <key>PayloadDescription</key>
+    <string>Discord alan adlarını şifreli Cloudflare DNS ile çözümler.</string>
+    <key>PayloadDisplayName</key>
+    <string>SplitWire Cloudflare Encrypted DNS</string>
+    <key>PayloadIdentifier</key>
+    <string>com.splitwire.cloudflare-doh</string>
+    <key>PayloadOrganization</key>
+    <string>SplitWire Turkey</string>
+    <key>PayloadRemovalDisallowed</key>
+    <false/>
+    <key>PayloadType</key>
+    <string>Configuration</string>
+    <key>PayloadUUID</key>
+    <string>FC47CC87-73FD-415A-A7A0-C421584739E4</string>
+    <key>PayloadVersion</key>
+    <integer>1</integer>
+</dict>
+</plist>

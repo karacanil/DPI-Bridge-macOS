@@ -1,101 +1,113 @@
-# SplitWire Turkey - macOS
+# SplitWire Turkey for macOS
 
-Modern macOS uygulaması ile ByeDPI ve WireGuard yönetimi.
+SplitWire Turkey, Discord'a erişimde kullanılan açık kaynaklı bir macOS
+uygulamasıdır. ByeDPI'ı yönetir, Discord'u gerekli proxy ayarlarıyla başlatır ve
+Discord güncelleyicisinin **Checking for Updates** ekranında kalmasını önlemek
+için yerel bir bağlantı köprüsü çalıştırır.
 
-## Özellikler
+Uygulama hesap parolası, mesaj, çerez veya ağ trafiği kaydetmez.
 
-### ByeDPI Yönetimi
-- ✅ 8 farklı DPI bypass yöntemi (Standart, Split 1/2, Disorder, Fake, OOB, vs.)
-- ✅ Menu bar'dan hızlı erişim ve kontrol
-- ✅ Otomatik yöntem değiştirme ve yeniden başlatma
-- ✅ Sistem proxy ayarları entegrasyonu
-- ✅ Favori uygulamalarınızı proxy ile başlatma
-- ✅ Her uygulama için özel parametreler
-- ✅ Ana pencere ve menu bar senkronize durum gösterimi
-- ✅ Port bazlı process temizleme (Kill All)
+## Kolay kurulum
 
-### WireGuard Yönetimi
-- WireGuard profil yönetimi
-- Kolay yapılandırma arayüzü
+Geliştirici araçlarına veya Python'a ihtiyaç yoktur.
 
-## Kurulum
+1. GitHub sayfasındaki **Releases** bölümünden son `.zip` dosyasını indir.
+2. Zip'i aç ve `SplitWire-Turkey.app` dosyasını **Applications** klasörüne taşı.
+3. Uygulamaya sağ tıklayıp **Aç** seçeneğini kullan.
+4. Uygulamada **Şifreli DNS Profilini Aç** düğmesine bas.
+5. Sistem Ayarları → Genel → Aygıt Yönetimi altında profili bir kez yükle.
+6. Ana ekrandaki **Discord** düğmesine bas.
 
-1. [Releases](https://github.com/a-mertdincer/SplitWire-Turkey-macOS/releases) sayfasından son sürümü indirin
-2. `SplitWire-Turkey.app` dosyasını Applications klasörüne sürükleyin
-3. Komutu terminalde çalıştırın, şifrenizi girmenizi isterse girin: 
-```sudo xattr -rd com.apple.quarantine "/Applications/SplitWire-Turkey.app/"```
-4. Uygulamayı açın
+Şifreli DNS profili yalnızca alan adı çözümlemeyi Cloudflare DNS over HTTPS'e
+taşır. Profil kaldırılabilir; parola veya kullanıcıya özel bilgi içermez.
 
-## Kullanım
+## Nasıl çalışır?
 
-### ByeDPI ile Sitelere Erişim
+```text
+Discord ──SOCKS5──▶ ByeDPI (127.0.0.1:1080) ──▶ İnternet
 
-1. **ByeDPI'ı başlatın**: Ana pencereden veya menu bar'dan "Başlat" butonuna tıklayın
-2. **DPI yöntemi seçin**: Bazı siteler farklı yöntemlerle çalışır
-   - **Standart**: Genel kullanım için
-   - **Disorder**: Genelde en etkili yöntem
-   - **Split + Disorder**: Kombine güç
-   - Diğer yöntemleri de deneyebilirsiniz
-3. **Favori uygulamalarınızı ekleyin**: Chrome, Firefox, Discord, vs.
-4. **Sistem proxy'yi aktif edin** (opsiyonel): Tüm sistem trafiği ByeDPI üzerinden geçer
+Discord güncelleyicisi ──HTTP CONNECT (127.0.0.1:1081)
+                                      │
+                                      └──▶ ByeDPI
 
-### ERR_CONNECTION_RESET Hatası
-
-Bir siteye giremiyorsanız:
-1. Menu bar ikonuna tıklayın
-2. "DPI Yöntemi" menüsünden farklı bir yöntem seçin
-3. Otomatik olarak yeniden başlatılır
-4. Siteyi tekrar deneyin
-
-Önerilen deneme sırası:
-1. Disorder
-2. Split + Disorder
-3. Split 2
-4. Fake -1
-5. OOB
-
-## Derleme
-
-```bash
-# Gereksinimler
-# - Swift 5.9+
-# - macOS 13.0+
-
-# Derleme
-swift build -c release
-
-# App bundle oluşturma
-./scripts/build-app.sh  # (TODO: Script eklenecek)
+DNS sorguları ──şifreli DNS──▶ Cloudflare
 ```
 
-## Katkıda Bulunma
+İki yerel proxy yalnızca bilgisayarın kendisinden erişilebilen `127.0.0.1`
+adresinde dinler. Güncelleyici köprüsü yalnızca Discord alan adlarına ve HTTPS
+portu `443`e izin verir.
 
-Bu proje [SplitWire-Turkey](https://github.com/cagritaskn/SplitWire-Turkey) projesinin macOS için geliştirilmiş versiyonudur.
+Teknik ayrıntılar ve elle yeniden üretim adımları için
+[Discord bağlantı çözümü](DISCORD-BAGLANTI-COZUMU.md) belgesine bak.
 
-Katkılarınızı bekliyoruz! Pull request göndermekten çekinmeyin.
+## Kaldırma ve eski ayarlara dönme
+
+Uygulamada ByeDPI'ı durdurup uygulamadan çık. Ardından:
+
+1. Sistem Ayarları → Genel → Aygıt Yönetimi bölümünü aç.
+2. **SplitWire Cloudflare Encrypted DNS** profilini kaldır.
+3. `SplitWire-Turkey.app` dosyasını Applications klasöründen sil.
+
+Kaynak koddan yardımcı scriptleri kullandıysan:
+
+```bash
+./scripts/restore-discord-network.sh
+```
+
+Tam geri alma ve doğrulama adımları
+[rehberde](DISCORD-BAGLANTI-COZUMU.md#durdurma-ve-tam-geri-alma) bulunur.
+
+## Sistem gereksinimleri
+
+- macOS 13 Ventura veya daha yeni sürüm
+- Intel veya Apple Silicon Mac
+- `/Applications/Discord.app` altında kurulu Discord
+
+## Kaynaktan derleme
+
+Gereksinimler: Xcode Command Line Tools ve Swift 5.9 veya daha yeni sürüm.
+
+```bash
+git clone <fork-adresi>
+cd SplitWire-Turkey-macOS
+./build.sh
+open SplitWire-Turkey.app
+```
+
+`build.sh`, Intel ve Apple Silicon için universal uygulama üretir ve yerel
+geliştirme için ad-hoc imzalar. Halka açık release'ler Developer ID ile
+imzalanmalı ve Apple tarafından notarize edilmelidir; ayrıntılar
+[yayın kontrol listesinde](RELEASE-CHECKLIST.md) yer alır.
+
+## Gizlilik ve güvenlik
+
+- Telemetri ve analitik yoktur.
+- Uygulama ağ içeriğini kaydetmez.
+- Proxy'ler dış ağ arayüzlerinde değil, yalnızca localhost üzerinde dinler.
+- Şifreli DNS profili kullanıcı tarafından açıkça kurulur ve kaldırılabilir.
+- Hassas logları issue'lara yüklemeden önce kişisel bilgileri temizlemek gerekir.
+
+Ayrıntılar: [PRIVACY.md](PRIVACY.md) ve [SECURITY.md](SECURITY.md).
+
+## Proje durumu
+
+Bu sürüm doğrulanmış ByeDPI + Discord bağlantısına odaklanır. Eski deneysel
+WireGuard ve düz DNS değiştirme bileşenleri, genel sürümde beklenmeyen sistem
+değişikliği oluşturmamaları için kaldırılmıştır.
+
+## Katkı ve kaynaklar
+
+Bu çalışma, SplitWire Turkey macOS projesi ve orijinal SplitWire Turkey
+projesinden türetilmiştir. ByeDPI/ciadpi kaynak kodunu kullanır. İlgili telif ve
+lisans bildirimleri korunmuştur.
+
+- [Orijinal SplitWire Turkey](https://github.com/cagritaskn/SplitWire-Turkey)
+- [ByeDPI](https://github.com/hufrea/byedpi)
+
+Katkılar pull request ile gönderilebilir. Güvenlik açıkları için herkese açık
+issue yerine [SECURITY.md](SECURITY.md) içindeki yöntemi kullan.
 
 ## Lisans
 
-Bu proje MIT lisansı altında lisanslanmıştır. Detaylar için [LICENSE](LICENSE) dosyasına bakın.
-
-## Teşekkürler
-
-- [ciadpi](https://github.com/nomoresat/DPI-bypass-multi) - DPI bypass aracı
-- Orijinal SplitWire Turkey projesi ekibi
-
-## Sorun Giderme
-
-**Uygulama açılmıyor:**
-- Sistem Ayarları > Gizlilik ve Güvenlik bölümünden "Yine de Aç" seçeneğini kullanın
-
-**ByeDPI başlamıyor:**
-- Terminal'den şu komutu çalıştırın: `sudo lsof -ti:1080 | xargs kill -9`
-- Ardından uygulamadan tekrar başlatın
-
-**Process kapatamıyorum:**
-- Menu bar'dan "Tümünü Zorla Kapat" seçeneğini kullanın
-- Bu seçenek sudo yetkisi ister ve port 1080'i tamamen temizler
-
-## İletişim
-
-Sorularınız için [Issues](https://github.com/a-mertdincer/SplitWire-Turkey-macOS/issues) bölümünü kullanabilirsiniz.
+Proje [MIT Lisansı](LICENSE) ile dağıtılır. `byedpi/` altındaki üçüncü taraf kod
+kendi lisans bildirimine tabidir.

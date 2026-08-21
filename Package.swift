@@ -10,6 +10,10 @@ let package = Package(
         .executable(
             name: "SplitWire-Turkey",
             targets: ["SplitWireTurkey"]
+        ),
+        .executable(
+            name: "discord-http-proxy",
+            targets: ["DiscordHTTPProxy"]
         )
     ],
     dependencies: [],
@@ -21,6 +25,10 @@ let package = Package(
             resources: [
                 .process("Resources")
             ]
+        ),
+        .executableTarget(
+            name: "DiscordHTTPProxy",
+            path: "Sources/DiscordHTTPProxy"
         )
     ]
 )

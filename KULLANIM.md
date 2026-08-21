@@ -1,285 +1,62 @@
-# SplitWire-Turkey macOS - Kullanım Kılavuzu
+# Kullanım kılavuzu
 
-## 📦 Kurulum
+## İlk kurulum
 
-### Adım 1: Uygulamayı Derleyin
+1. Release paketini indir ve uygulamayı **Applications** klasörüne taşı.
+2. Uygulamaya sağ tıklayıp **Aç** seçeneğini kullan.
+3. **ByeDPI** ekranında **Şifreli DNS Profilini Aç** düğmesine bas.
+4. Sistem Ayarları → Genel → Aygıt Yönetimi bölümünde profili yükle.
+5. Hızlı İşlemler alanındaki **Discord** düğmesine bas.
 
-```bash
-cd /Users/mert/Downloads/SplitWire-Turkey-macOS
-./build.sh
-```
+Uygulama ByeDPI'ı ve Discord güncelleyicisinin ihtiyaç duyduğu yerel köprüyü
+otomatik başlatır. İlk açılışta Discord modülleri indirildiği için işlem normalden
+uzun sürebilir.
 
-### Adım 2: Applications Klasörüne Taşıyın
+## Günlük kullanım
 
-```bash
-cp -r SplitWire-Turkey.app /Applications/
-```
+- Discord'u SplitWire içindeki **Discord** düğmesiyle aç.
+- Bağlantı kurulmazsa önce **Disorder**, ardından **Split + Disorder** yöntemini
+  dene.
+- İşin bittiğinde **Durdur** düğmesiyle ByeDPI ve güncelleyici köprüsünü kapat.
 
-### Adım 3: Uygulamayı Açın
+Sistem geneli proxy çoğu kullanıcı için gerekli değildir. Bu seçenek yalnızca
+ne yaptığını bilen kullanıcılar tarafından kullanılmalıdır; Discord düğmesi
+sistem proxy'sini değiştirmeden çalışır.
 
-```bash
-open /Applications/SplitWire-Turkey.app
-```
+## Sorun giderme
 
-**İlk Açılışta:** "Tanımlanamayan geliştirici" uyarısı alabilirsiniz. Çözüm:
-1. Sistem Ayarları > Gizlilik ve Güvenlik > "Yine de Aç" butonuna tıklayın
-2. Veya Terminal'den: `xattr -d com.apple.quarantine /Applications/SplitWire-Turkey.app`
+### Checking for Updates ekranı geçilmiyor
 
----
+1. Şifreli DNS profilinin kurulu olduğunu kontrol et.
+2. Discord'u tamamen kapat.
+3. SplitWire'da ByeDPI'ı durdurup yeniden başlat.
+4. Discord düğmesine tekrar bas.
 
-## 🚀 İlk Kullanım
+### Port kullanımda uyarısı
 
-### WireGuard Kurulumu
+Başka bir proxy uygulaması `1080` veya `1081` portunu kullanıyor olabilir.
+İlgili uygulamayı kapat ve tekrar dene. Kaynağını bilmediğin süreçleri zorla
+kapatma.
 
-1. **SplitWire-Turkey**'i açın
-2. **WireGuard** sekmesine gidin
-3. (Opsiyonel) "Tarayıcılar için de tünelleme yap" seçeneğini işaretleyin
-4. **"Standart Kurulum Yap"** butonuna tıklayın
-5. Yönetici şifrenizi girin
-6. Kurulum tamamlandığında bilgisayarınızı yeniden başlatın
+### Uygulama açılmıyor
 
-### DNS Optimizasyonu
+Uygulamaya Finder'da sağ tıklayıp **Aç** seçeneğini kullan. Resmî release'in
+imza/notarizasyon bilgisi release notunda yayınlanmalıdır. İnternetten bulunan
+rastgele `xattr`, `sudo` veya sertifika komutlarını çalıştırma.
 
-1. **Ağ Ayarları** sekmesine gidin
-2. **"Optimal DNS Ayarla"** butonuna tıklayın
-3. Bu işlem Google (8.8.8.8) ve Quad9 (9.9.9.9) DNS sunucularını ayarlar
+## Kaldırma
 
----
+1. SplitWire'da **Durdur** düğmesine bas ve uygulamadan çık.
+2. Sistem Ayarları → Genel → Aygıt Yönetimi bölümünde
+   **SplitWire Cloudflare Encrypted DNS** profilini kaldır.
+3. Applications klasöründeki uygulamayı Çöp Sepeti'ne taşı.
 
-## 🔧 Gelişmiş Özellikler
-
-### Özel Klasör Ekleme
-
-Discord dışında başka uygulamalar için tünelleme yapmak isterseniz:
-
-1. **WireGuard** sekmesinde **"Klasör Ekle"** butonuna tıklayın
-2. Uygulamanın `.app` dosyasını seçin (örn: `/Applications/Spotify.app`)
-3. **"Özel Kurulum"** butonuna tıklayın
-
-### DNS Önbelleğini Temizleme
-
-Bağlantı sorunları yaşıyorsanız:
-
-1. **Ağ Ayarları** sekmesine gidin
-2. **"DNS Önbelleğini Temizle"** butonuna tıklayın
-
----
-
-## 🐛 Sorun Giderme
-
-### WireGuard Başlamıyor
-
-Terminal'de kontrol edin:
+Kaynak kod scriptlerini kullanan geliştiriciler tam geri dönüş için şunu
+çalıştırabilir:
 
 ```bash
-# WireGuard durumunu görüntüle
-sudo wg show
-
-# Manuel başlatma
-sudo wg-quick up wgcf
-
-# Manuel durdurma
-sudo wg-quick down wgcf
+./scripts/restore-discord-network.sh
 ```
 
-### wgcf İndirilemedi
-
-Manuel kurulum:
-
-```bash
-mkdir -p ~/.local/bin
-curl -Lo ~/.local/bin/wgcf https://github.com/ViRb3/wgcf/releases/latest/download/wgcf_2.2.20_darwin_amd64
-chmod +x ~/.local/bin/wgcf
-```
-
-### DNS Değişiklikleri Uygulanmıyor
-
-```bash
-# DNS önbelleğini manuel temizleme
-sudo dscacheutil -flushcache
-sudo killall -HUP mDNSResponder
-
-# Ağ ayarlarını sıfırlama
-sudo networksetup -setdnsservers Wi-Fi empty
-```
-
-### Yapılandırma Dosyası Bulunamadı
-
-WireGuard yapılandırma dosyalarının konumu:
-
-```bash
-# Yapılandırma klasörü
-~/.config/wireguard/
-
-# Dosyalar
-~/.config/wireguard/wgcf.conf
-~/.config/wireguard/wgcf-account.toml
-~/.config/wireguard/wgcf-profile.conf
-```
-
-Manuel temizlik:
-
-```bash
-rm -rf ~/.config/wireguard/wgcf*
-```
-
----
-
-## 📝 Terminal Komutları
-
-### WireGuard İşlemleri
-
-```bash
-# Tünel durumunu kontrol et
-sudo wg show
-
-# Tüneli başlat
-sudo wg-quick up wgcf
-
-# Tüneli durdur
-sudo wg-quick down wgcf
-
-# Yapılandırmayı görüntüle
-cat ~/.config/wireguard/wgcf.conf
-```
-
-### Ağ Bilgileri
-
-```bash
-# Birincil ağ arayüzünü bul
-route -n get default | grep interface
-
-# Mevcut DNS sunucularını görüntüle
-scutil --dns
-
-# DNS'i DHCP'ye sıfırla
-sudo networksetup -setdnsservers Wi-Fi empty
-
-# Belirli DNS sunucuları ayarla
-sudo networksetup -setdnsservers Wi-Fi 8.8.8.8 9.9.9.9
-```
-
-### Sistem Logları
-
-```bash
-# Sistem loglarını görüntüle
-log show --predicate 'process == "wireguard"' --last 10m
-
-# WireGuard logları
-cat /var/log/system.log | grep wireguard
-```
-
----
-
-## ⚠️ Önemli Notlar
-
-### Yönetici Yetkileri
-
-Bu uygulama bazı işlemler için yönetici (sudo) yetkileri gerektirir:
-- WireGuard tüneli kurulumu
-- DNS ayarlarını değiştirme
-- Sistem servisleri yönetimi
-
-### Güvenlik
-
-- Tüm yapılandırma dosyaları yerel sistemde saklanır
-- Hiçbir veri dışarıya gönderilmez
-- WireGuard bağlantısı şifrelidir
-
-### Performans
-
-- WireGuard minimal CPU ve bellek kullanır
-- Bağlantı hızınızı etkilemez
-- Sadece seçili uygulamalar tünellenir (split tunneling)
-
----
-
-## 🔄 Güncelleme
-
-Yeni bir versiyon çıktığında:
-
-```bash
-# Eski uygulamayı kaldır
-rm -rf /Applications/SplitWire-Turkey.app
-
-# Yeni versiyonu derle
-cd /Users/mert/Downloads/SplitWire-Turkey-macOS
-git pull
-./build.sh
-
-# Yeni versiyonu yükle
-cp -r SplitWire-Turkey.app /Applications/
-```
-
----
-
-## 🗑️ Tamamen Kaldırma
-
-Uygulamayı ve tüm yapılandırmayı kaldırmak için:
-
-```bash
-# WireGuard'ı durdur
-sudo wg-quick down wgcf
-
-# LaunchDaemon'u kaldır
-sudo launchctl unload /Library/LaunchDaemons/com.splitwire.wireguard.plist
-sudo rm /Library/LaunchDaemons/com.splitwire.wireguard.plist
-
-# Yapılandırma dosyalarını sil
-rm -rf ~/.config/wireguard/wgcf*
-sudo rm -f /etc/wireguard/wgcf.conf
-
-# wgcf'yi sil
-rm ~/.local/bin/wgcf
-
-# Uygulamayı sil
-rm -rf /Applications/SplitWire-Turkey.app
-
-# DNS'i sıfırla
-sudo networksetup -setdnsservers Wi-Fi empty
-sudo dscacheutil -flushcache
-sudo killall -HUP mDNSResponder
-```
-
----
-
-## 📞 Destek
-
-Sorun yaşıyorsanız:
-
-1. Bu kılavuzu kontrol edin
-2. [README.md](README.md) dosyasını okuyun
-3. [GitHub Issues](https://github.com/cagritaskn/SplitWire-Turkey/issues) sayfasında arama yapın
-4. Yeni bir issue açın (varsa log dosyalarını ekleyin)
-
----
-
-## 💡 İpuçları
-
-### En İyi Performans
-
-1. Sadece gerekli uygulamaları tünele ekleyin
-2. DNS ayarlarını optimize edin
-3. WireGuard tünelini gereksiz yere durdurup başlatmayın
-
-### Güvenli Kullanım
-
-1. Sadece güvenilir kaynaklardan wgcf indirin
-2. WireGuard yapılandırmanızı kimseyle paylaşmayın
-3. Düzenli olarak güncellemeleri kontrol edin
-
-### Hız Testi
-
-```bash
-# Tünelsiz hız testi
-curl -o /dev/null http://speedtest.tele2.net/100MB.zip
-
-# Tünelli hız testi
-sudo wg-quick up wgcf
-curl -o /dev/null http://speedtest.tele2.net/100MB.zip
-sudo wg-quick down wgcf
-```
-
----
-
-**Son Güncelleme:** 2025-10-22
+Daha ayrıntılı teknik bilgi için
+[DISCORD-BAGLANTI-COZUMU.md](DISCORD-BAGLANTI-COZUMU.md) belgesine bak.

@@ -19,6 +19,20 @@ xcuserdata/
 
 # App bundle (we'll provide release builds separately)
 *.app/
+*.zip
+*.dmg
+
+# Local configuration, logs and credentials
+.env
+.env.*
+!.env.example
+*.log
+*.p12
+*.pem
+*.key
+*.mobileprovision
+settings.txt
+.discord-settings*
 
 # macOS
 .DS_Store

@@ -15,7 +15,7 @@ struct AboutView: View {
                         .font(.largeTitle)
                         .fontWeight(.bold)
 
-                    Text("macOS Edition 1.0")
+                    Text("macOS Edition \(Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "dev")")
                         .font(.headline)
                         .foregroundColor(.secondary)
                 }
@@ -39,11 +39,10 @@ struct AboutView: View {
                 // Features
                 GroupBox(label: Label("Özellikler", systemImage: "star.fill")) {
                     VStack(alignment: .leading, spacing: 8) {
-                        FeatureRow(icon: "network", text: "WireGuard tabanlı tünelleme")
                         FeatureRow(icon: "shield.checkered", text: "ByeDPI ile DPI aşımı (SOCKS5 proxy)")
-                        FeatureRow(icon: "gearshape.2", text: "Kolay DNS yapılandırması")
+                        FeatureRow(icon: "lock.shield", text: "İsteğe bağlı şifreli DNS profili")
                         FeatureRow(icon: "folder.badge.plus", text: "Özelleştirilebilir uygulama listesi")
-                        FeatureRow(icon: "command", text: "Discord otomatik proxy yapılandırması")
+                        FeatureRow(icon: "command", text: "Discord ve güncelleyici için otomatik proxy")
                     }
                     .padding()
                 }
@@ -109,11 +108,7 @@ struct AboutView: View {
 
                         Text("Kullanılan Araçlar:")
                             .fontWeight(.semibold)
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text("• wgcf by ViRb3")
-                            Text("• WireGuard")
-                            Text("• ByeDPI by hufrea")
-                        }
+                        Text("• ByeDPI / ciadpi")
                         .font(.caption)
                         .foregroundColor(.secondary)
                     }
@@ -125,7 +120,7 @@ struct AboutView: View {
                     VStack(alignment: .leading, spacing: 8) {
                         Text("MIT License")
                             .fontWeight(.semibold)
-                        Text("Copyright © 2025 Çağrı Taşkın")
+                        Text("SplitWire Turkey contributors")
                             .font(.caption)
                             .foregroundColor(.secondary)
                     }

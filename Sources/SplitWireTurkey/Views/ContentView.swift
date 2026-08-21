@@ -10,23 +10,11 @@ struct ContentView: View {
 
             // Tab View
             TabView(selection: $appState.selectedTab) {
-                WireGuardView()
-                    .tabItem {
-                        Label("WireGuard", systemImage: "network")
-                    }
-                    .tag(0)
-
                 ByeDPIView()
                     .tabItem {
                         Label("ByeDPI", systemImage: "shield.checkered")
                     }
                     .tag(1)
-
-                NetworkConfigView()
-                    .tabItem {
-                        Label("Ağ Ayarları", systemImage: "gearshape")
-                    }
-                    .tag(2)
 
                 AboutView()
                     .tabItem {

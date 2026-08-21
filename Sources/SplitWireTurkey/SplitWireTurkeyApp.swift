@@ -23,9 +23,10 @@ struct SplitWireTurkeyApp: App {
                     NSApplication.shared.orderFrontStandardAboutPanel(
                         options: [
                             NSApplication.AboutPanelOptionKey.applicationName: "SplitWire-Turkey",
-                            NSApplication.AboutPanelOptionKey.applicationVersion: "1.0",
+                            NSApplication.AboutPanelOptionKey.applicationVersion:
+                                Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "dev",
                             NSApplication.AboutPanelOptionKey.version: "macOS Edition",
-                            NSApplication.AboutPanelOptionKey(rawValue: "Copyright"): "© 2025 Çağrı Taşkın"
+                            NSApplication.AboutPanelOptionKey(rawValue: "Copyright"): "SplitWire Turkey contributors — MIT License"
                         ]
                     )
                 }
@@ -35,38 +36,7 @@ struct SplitWireTurkeyApp: App {
 }
 
 class AppDelegate: NSObject, NSApplicationDelegate {
-    func applicationDidFinishLaunching(_ notification: Notification) {
-        // Check if user has chosen to hide the admin alert
-        let hideAdminAlert = UserDefaults.standard.bool(forKey: "hideAdminAlert")
-
-        // Check for admin privileges on launch
-        if !hasAdminPrivileges() && !hideAdminAlert {
-            showAdminRequiredAlert()
-        }
-    }
-
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
         return true
-    }
-
-    private func hasAdminPrivileges() -> Bool {
-        return geteuid() == 0
-    }
-
-    private func showAdminRequiredAlert() {
-        let alert = NSAlert()
-        alert.messageText = "Yönetici Yetkileri Gerekli"
-        alert.informativeText = "Bu uygulama ağ yapılandırması değişiklikleri yapmak için yönetici yetkileri gerektirir. Bazı özellikler çalışmayabilir."
-        alert.alertStyle = .warning
-        alert.addButton(withTitle: "Tamam")
-        alert.showsSuppressionButton = true
-        alert.suppressionButton?.title = "Tekrar gösterme"
-
-        alert.runModal()
-
-        // Save the "don't show again" preference if checked
-        if alert.suppressionButton?.state == .on {
-            UserDefaults.standard.set(true, forKey: "hideAdminAlert")
-        }
     }
 }

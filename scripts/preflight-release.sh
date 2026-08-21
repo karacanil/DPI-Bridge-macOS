@@ -4,6 +4,7 @@ set -eu
 
 REPO_ROOT=${0:A:h:h}
 cd "$REPO_ROOT"
+EXPECTED_ARCH=${EXPECTED_ARCH:-universal}
 
 fail() {
     print -u2 "HATA: $*"
@@ -56,8 +57,13 @@ if [[ -d SplitWire-Turkey.app ]]; then
         SplitWire-Turkey.app/Contents/Resources/bin/ciadpi \
         SplitWire-Turkey.app/Contents/Resources/bin/discord-http-proxy; do
         ARCHS=$(lipo -archs "$executable")
-        [[ "$ARCHS" == *"x86_64"* && "$ARCHS" == *"arm64"* ]] \
-            || fail "$executable universal değil: $ARCHS"
+        if [[ "$EXPECTED_ARCH" == "universal" ]]; then
+            [[ "$ARCHS" == *"x86_64"* && "$ARCHS" == *"arm64"* ]] \
+                || fail "$executable universal değil: $ARCHS"
+        else
+            [[ "$ARCHS" == "$EXPECTED_ARCH" ]] \
+                || fail "$executable beklenen $EXPECTED_ARCH mimarisinde değil: $ARCHS"
+        fi
     done
     codesign --verify --deep --strict SplitWire-Turkey.app \
         || fail "Uygulama imzası geçersiz."

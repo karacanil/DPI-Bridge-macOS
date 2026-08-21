@@ -96,6 +96,13 @@ geliştirme için ad-hoc imzalar. Halka açık release'ler Developer ID ile
 imzalanmalı ve Apple tarafından notarize edilmelidir; ayrıntılar
 [yayın kontrol listesinde](RELEASE-CHECKLIST.md) yer alır.
 
+Yalnızca Intel veya Apple Silicon paketi oluşturmak için:
+
+```bash
+TARGET_ARCH=x86_64 ./build.sh  # Intel
+TARGET_ARCH=arm64 ./build.sh   # Apple Silicon
+```
+
 ## Gizlilik ve güvenlik
 
 - Telemetri ve analitik yoktur.

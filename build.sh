@@ -8,6 +8,12 @@ set -euo pipefail
 APP_NAME="SplitWire-Turkey"
 VERSION=${VERSION:-1.1.0}
 BUILD_NUMBER=${BUILD_NUMBER:-1}
+TARGET_ARCH=${TARGET_ARCH:-universal}
+
+if [[ "${TARGET_ARCH}" != "universal" && "${TARGET_ARCH}" != "x86_64" && "${TARGET_ARCH}" != "arm64" ]]; then
+    echo "✗ TARGET_ARCH must be universal, x86_64, or arm64"
+    exit 1
+fi
 
 echo "🔨 Building SplitWire-Turkey for macOS..."
 
@@ -21,20 +27,28 @@ fi
 # Build the application
 if [ "${SKIP_BUILD:-0}" != "1" ]; then
     echo "📦 Building Swift package..."
-    swift build -c release --arch x86_64 --scratch-path .build/x86_64
-    swift build -c release --arch arm64 --scratch-path .build/arm64
+    if [[ "${TARGET_ARCH}" == "universal" || "${TARGET_ARCH}" == "x86_64" ]]; then
+        swift build -c release --arch x86_64 --scratch-path .build/x86_64
+    fi
+    if [[ "${TARGET_ARCH}" == "universal" || "${TARGET_ARCH}" == "arm64" ]]; then
+        swift build -c release --arch arm64 --scratch-path .build/arm64
+    fi
 else
     echo "📦 Reusing existing architecture builds..."
 fi
 
-UNIVERSAL_BIN_DIR=".build/universal/release"
-mkdir -p "${UNIVERSAL_BIN_DIR}"
-for EXECUTABLE in "${APP_NAME}" discord-http-proxy; do
-    lipo -create \
-        ".build/x86_64/x86_64-apple-macosx/release/${EXECUTABLE}" \
-        ".build/arm64/arm64-apple-macosx/release/${EXECUTABLE}" \
-        -output "${UNIVERSAL_BIN_DIR}/${EXECUTABLE}"
-done
+if [[ "${TARGET_ARCH}" == "universal" ]]; then
+    OUTPUT_BIN_DIR=".build/universal/release"
+    mkdir -p "${OUTPUT_BIN_DIR}"
+    for EXECUTABLE in "${APP_NAME}" discord-http-proxy; do
+        lipo -create \
+            ".build/x86_64/x86_64-apple-macosx/release/${EXECUTABLE}" \
+            ".build/arm64/arm64-apple-macosx/release/${EXECUTABLE}" \
+            -output "${OUTPUT_BIN_DIR}/${EXECUTABLE}"
+    done
+else
+    OUTPUT_BIN_DIR=".build/${TARGET_ARCH}/${TARGET_ARCH}-apple-macosx/release"
+fi
 
 # Create app bundle structure
 echo "🎁 Creating application bundle..."
@@ -48,13 +62,17 @@ mkdir -p "${RESOURCES}"
 
 # Copy executable
 echo "📋 Copying executable..."
-cp "${UNIVERSAL_BIN_DIR}/${APP_NAME}" "${MACOS}/"
+cp "${OUTPUT_BIN_DIR}/${APP_NAME}" "${MACOS}/"
 
 # Copy bundled helper binaries
 echo "📋 Copying helper binaries..."
 mkdir -p "${RESOURCES}/bin"
 if [ -f "Sources/SplitWireTurkey/Resources/bin/ciadpi" ]; then
-    cp "Sources/SplitWireTurkey/Resources/bin/ciadpi" "${RESOURCES}/bin/"
+    if [[ "${TARGET_ARCH}" == "universal" ]]; then
+        cp "Sources/SplitWireTurkey/Resources/bin/ciadpi" "${RESOURCES}/bin/"
+    else
+        lipo -thin "${TARGET_ARCH}" "Sources/SplitWireTurkey/Resources/bin/ciadpi" -output "${RESOURCES}/bin/ciadpi"
+    fi
     chmod +x "${RESOURCES}/bin/ciadpi"
     echo "  ✓ ByeDPI (ciadpi) copied"
 else
@@ -62,7 +80,7 @@ else
     exit 1
 fi
 
-cp "${UNIVERSAL_BIN_DIR}/discord-http-proxy" "${RESOURCES}/bin/"
+cp "${OUTPUT_BIN_DIR}/discord-http-proxy" "${RESOURCES}/bin/"
 chmod +x "${RESOURCES}/bin/discord-http-proxy"
 echo "  ✓ Discord updater proxy copied"
 

@@ -31,6 +31,11 @@ Geliştirici araçlarına veya Python'a ihtiyaç yoktur.
 7. Sistem Ayarları → Genel → Aygıt Yönetimi altında profili bir kez yükle.
 8. Ana ekrandaki **Discord'u Başlat** düğmesine bas.
 
+Profil yükleme ekranında kuruluşun **SplitWire Turkey**, içeriğin yalnızca
+**DNS Settings** ve DNS URL'sinin `https://cloudflare-dns.com/dns-query`
+olduğunu kontrol et. Ayrıntılı ve ekran adlarıyla anlatılmış adımlar için
+[kullanım kılavuzuna](docs/KULLANIM.md#ilk-kurulum) bak.
+
 **Yine de Aç / Open Anyway** düğmesi ilk başarısız açma denemesinden sonra
 yaklaşık bir saat kullanılabilir. Bu işlem yalnızca bu uygulama için istisna
 oluşturur. Ayrıntılar için [Apple'ın resmi yönergesine](https://support.apple.com/guide/mac-help/open-an-app-by-overriding-security-settings-mh40617/mac)

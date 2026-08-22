@@ -11,8 +11,14 @@
    için **Yine de Aç / Open Anyway** düğmesine bas.
 4. Parolan veya Touch ID ile onaylayıp **Aç / Open** seçeneğini kullan.
 5. **Discord** ekranında **Şifreli DNS Profilini Aç** düğmesine bas.
-6. Sistem Ayarları → Genel → Aygıt Yönetimi bölümünde profili yükle.
-7. **Discord'u Başlat** düğmesine bas.
+6. Sistem Ayarları → Genel → Aygıt Yönetimi bölümünde **İndirilenler** altındaki
+   **SplitWire Cloudflare Encrypted DNS** profiline çift tıkla.
+7. Kuruluşun **SplitWire Turkey**, içeriğin yalnızca **DNS Settings** ve DNS
+   adresinin `https://cloudflare-dns.com/dns-query` olduğunu kontrol et.
+8. Profil imzasız görünebilir. Release ZIP'inin checksum'unu doğruladıysan
+   **Sürdür → Yükle** adımlarıyla parola veya Touch ID kullanarak onayla.
+9. Profilin **Yüklendi** bölümünde göründüğünü doğrula.
+10. SplitWire'a dönüp **Discord'u Başlat** düğmesine bas.
 
 Uygulama ByeDPI'ı ve Discord güncelleyicisinin ihtiyaç duyduğu yerel köprüyü
 otomatik başlatır. İlk açılışta Discord modülleri indirildiği için işlem normalden
@@ -24,6 +30,12 @@ düğmesi ilk denemeden sonra yaklaşık bir saat görünür ve yalnızca bu uyg
 istisna tanır. Rastgele `xattr`, `sudo` veya sertifika komutlarıyla Gatekeeper'ı
 devre dışı bırakma. Ayrıntılar:
 [Apple Support](https://support.apple.com/guide/mac-help/open-an-app-by-overriding-security-settings-mh40617/mac).
+
+Şifreli DNS profili sistem genelindeki DNS sorgularını Cloudflare DNS over
+HTTPS'e yönlendirir. Daha sonra Sistem Ayarları → Genel → Aygıt Yönetimi
+altında profili seçip eksi (`−`) düğmesiyle kaldırabilirsin. Apple'ın ayrıntılı
+profil yönergesi:
+[Apple Support](https://support.apple.com/guide/mac-help/mh35561/mac).
 
 ## Günlük kullanım
 

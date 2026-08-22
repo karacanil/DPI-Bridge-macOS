@@ -3,8 +3,8 @@
 ## İlk kurulum
 
 1. Mac'in işlemcisine uygun Release paketini indir ve uygulamayı
-   **Applications** klasörüne taşı. Mevcut beta paketi yalnızca Intel
-   (`x86_64`) Mac'ler içindir.
+   **Applications** klasörüne taşı. Intel (`x86_64`) paketi kararlıdır; Apple
+   Silicon (`arm64`) paketi gerçek cihaz testi tamamlanana kadar betadır.
 2. Uygulamayı bir kez açmayı dene ve zararlı yazılım doğrulama uyarısında
    **Bitti / Done** seçeneğine bas.
 3. Sistem Ayarları → Gizlilik ve Güvenlik bölümünde aşağı kaydırıp SplitWire
@@ -24,7 +24,7 @@ Uygulama ByeDPI'ı ve Discord güncelleyicisinin ihtiyaç duyduğu yerel köprü
 otomatik başlatır. İlk açılışta Discord modülleri indirildiği için işlem normalden
 uzun sürebilir.
 
-Mevcut Intel beta paketi ad-hoc imzalı ve notarize edilmemiştir. Bu yüzden
+Hazır paketler ad-hoc imzalı ve notarize edilmemiştir. Bu yüzden
 macOS'un gösterdiği doğrulama uyarısı beklenir. **Yine de Aç / Open Anyway**
 düğmesi ilk denemeden sonra yaklaşık bir saat görünür ve yalnızca bu uygulamaya
 istisna tanır. Rastgele `xattr`, `sudo` veya sertifika komutlarıyla Gatekeeper'ı
@@ -52,9 +52,10 @@ sistem genelinde Push-to-Talk veya global tuş kısayolları kullanabilmek için
 kullanmıyorsan isteği reddedebilirsin.
 
 İzin ekranında SplitWire adı görünüyorsa eski Beta 2 kullanılıyor olabilir.
-Beta 3'e yükselt ve Sistem Ayarları → Gizlilik ve Güvenlik → Giriş İzleme
-altından eski SplitWire iznini kapat. Beta 3 Discord'u Launch Services üzerinden
-başlattığı için Discord'a ait izin SplitWire adına gösterilmez.
+Güncel 1.1.0 paketine yükselt ve Sistem Ayarları → Gizlilik ve Güvenlik → Giriş
+İzleme altından eski SplitWire iznini kapat. Güncel sürüm Discord'u Launch
+Services üzerinden başlattığı için Discord'a ait izin SplitWire adına
+gösterilmez.
 
 ### Checking for Updates ekranı geçilmiyor
 

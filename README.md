@@ -14,14 +14,17 @@ Uygulama hesap parolası, mesaj, çerez veya ağ trafiği kaydetmez.
 
 Geliştirici araçlarına veya Python'a ihtiyaç yoktur.
 
-> **İmza notu:** Mevcut Intel paketi ad-hoc imzalıdır ve Apple tarafından
+> **İmza notu:** Hazır paketler ad-hoc imzalıdır ve Apple tarafından
 > notarize edilmemiştir. Bu nedenle macOS, Apple'ın uygulamanın zararlı yazılım
 > içermediğini doğrulayamadığını belirten bir uyarı gösterir. Güvenli açma
 > adımları aşağıdadır; Gatekeeper'ı rastgele `xattr` veya `sudo` komutlarıyla
 > devre dışı bırakma.
 
 1. GitHub sayfasındaki **Releases** bölümünden Mac'inin işlemcisine uygun `.zip`
-   dosyasını indir. Mevcut hazır paket yalnızca Intel (`x86_64`) Mac'ler içindir.
+   dosyasını indir:
+   - Intel işlemci: `SplitWire-Turkey-1.1.0-intel.zip` (kararlı)
+   - Apple M1/M2/M3/M4: `SplitWire-Turkey-1.1.0-apple-silicon-beta.1.zip`
+     (test bekleyen beta)
 2. Zip'i aç ve `SplitWire-Turkey.app` dosyasını **Applications** klasörüne taşı.
 3. Uygulamayı bir kez açmayı dene ve uyarıda **Bitti / Done** seçeneğine bas.
 4. Sistem Ayarları → Gizlilik ve Güvenlik bölümünü aç, aşağı kaydır ve
@@ -93,8 +96,8 @@ Tam geri alma ve doğrulama adımları
 
 - macOS 13 Ventura veya daha yeni sürüm
 - Intel Mac (mevcut kararlı Release paketi)
-- Apple Silicon Mac (kaynak koddan derleme desteklenir; hazır paket henüz
-  yayımlanmadı)
+- Apple Silicon Mac (hazır paket beta olarak yayımlanır ve gerçek cihaz testi
+  tamamlanana kadar pre-release olarak kalır)
 - `/Applications/Discord.app` altında kurulu Discord
 
 ## Sorun giderme
@@ -109,14 +112,23 @@ Tam geri alma ve doğrulama adımları
 
 ## Kaynaktan derleme
 
-Gereksinimler: Xcode Command Line Tools ve Swift 5.9 veya daha yeni sürüm.
+Apple Silicon beta paketi sorun çıkarırsa aynı açık kaynak kodu doğrudan kendi
+Mac'inde derleyebilirsin. Gereksinimler: macOS 13 veya sonrası, Xcode Command
+Line Tools, Swift 5.9 veya sonrası ve internet bağlantısı.
 
 ```bash
+xcode-select --install
 git clone https://github.com/karacanil/SplitWire-Turkey-macOS.git
 cd SplitWire-Turkey-macOS
-./build.sh
+TARGET_ARCH=arm64 ./build.sh
 open SplitWire-Turkey.app
 ```
+
+`xcode-select --install` komutu araçlar zaten kuruluysa bunu bildiren bir uyarı
+gösterebilir; bu durumda sonraki adıma geçebilirsin. Derleme tamamlandığında
+oluşan `SplitWire-Turkey.app` dosyasını Applications klasörüne taşı ve yukarıdaki
+kurulum adımlarını uygula. Derlemenin Swift optimizasyonu sırasında birkaç dakika
+çıktı vermeden devam etmesi normaldir.
 
 `build.sh`, Intel ve Apple Silicon için universal uygulama üretir ve yerel
 geliştirme için ad-hoc imzalar. Genel dağıtıma yönelik kararlı release'ler

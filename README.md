@@ -14,14 +14,14 @@ Uygulama hesap parolası, mesaj, çerez veya ağ trafiği kaydetmez.
 
 Geliştirici araçlarına veya Python'a ihtiyaç yoktur.
 
-> **Beta notu:** Mevcut Intel paketi ad-hoc imzalıdır ve Apple tarafından
+> **İmza notu:** Mevcut Intel paketi ad-hoc imzalıdır ve Apple tarafından
 > notarize edilmemiştir. Bu nedenle macOS, Apple'ın uygulamanın zararlı yazılım
 > içermediğini doğrulayamadığını belirten bir uyarı gösterir. Güvenli açma
 > adımları aşağıdadır; Gatekeeper'ı rastgele `xattr` veya `sudo` komutlarıyla
 > devre dışı bırakma.
 
 1. GitHub sayfasındaki **Releases** bölümünden Mac'inin işlemcisine uygun `.zip`
-   dosyasını indir. Mevcut beta paketi yalnızca Intel (`x86_64`) Mac'ler içindir.
+   dosyasını indir. Mevcut hazır paket yalnızca Intel (`x86_64`) Mac'ler içindir.
 2. Zip'i aç ve `SplitWire-Turkey.app` dosyasını **Applications** klasörüne taşı.
 3. Uygulamayı bir kez açmayı dene ve uyarıda **Bitti / Done** seçeneğine bas.
 4. Sistem Ayarları → Gizlilik ve Güvenlik bölümünü aç, aşağı kaydır ve
@@ -92,8 +92,8 @@ Tam geri alma ve doğrulama adımları
 ## Sistem gereksinimleri
 
 - macOS 13 Ventura veya daha yeni sürüm
-- Intel Mac (mevcut beta Release paketi)
-- Apple Silicon Mac (kaynak koddan derleme desteklenir; hazır beta paketi henüz
+- Intel Mac (mevcut kararlı Release paketi)
+- Apple Silicon Mac (kaynak koddan derleme desteklenir; hazır paket henüz
   yayımlanmadı)
 - `/Applications/Discord.app` altında kurulu Discord
 

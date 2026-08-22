@@ -13,8 +13,8 @@ Uygulama şunları okumaz veya saklamaz:
 - Ağ paketlerinin içeriği
 - Konum, kişi listesi, kamera veya mikrofon verileri
 
-Yerel tercihler (seçilen ByeDPI yöntemi ve favori uygulama yolları) macOS
-`UserDefaults` alanında cihazda saklanır.
+Yalnızca arayüzün açık/koyu görünüm tercihi macOS `UserDefaults` alanında
+cihazda saklanır.
 
 ## Ağ bağlantıları
 
@@ -37,6 +37,7 @@ izin verir.
 
 ## Kaldırma
 
-Uygulamayı ve DNS profilini kaldırma adımları [KULLANIM.md](KULLANIM.md)
+Uygulamayı ve DNS profilini kaldırma adımları
+[kullanım kılavuzunda](docs/KULLANIM.md)
 dosyasında açıklanır. Uygulama kaldırıldıktan sonra uzak bir hesapta tutulmuş
 SplitWire verisi yoktur.

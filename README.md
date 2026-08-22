@@ -14,7 +14,12 @@ Uygulama hesap parolası, mesaj, çerez veya ağ trafiği kaydetmez.
 
 Geliştirici araçlarına veya Python'a ihtiyaç yoktur.
 
-1. GitHub sayfasındaki **Releases** bölümünden son `.zip` dosyasını indir.
+> **Beta notu:** Mevcut Intel paketi ad-hoc imzalıdır ve Apple tarafından
+> notarize edilmemiştir. macOS tanımlanamayan geliştirici uyarısı gösterebilir.
+> Gatekeeper'ı rastgele `xattr` veya `sudo` komutlarıyla devre dışı bırakma.
+
+1. GitHub sayfasındaki **Releases** bölümünden Mac'inin işlemcisine uygun `.zip`
+   dosyasını indir. Mevcut beta paketi yalnızca Intel (`x86_64`) Mac'ler içindir.
 2. Zip'i aç ve `SplitWire-Turkey.app` dosyasını **Applications** klasörüne taşı.
 3. Uygulamaya sağ tıklayıp **Aç** seçeneğini kullan.
 4. Uygulamada **Şifreli DNS Profilini Aç** düğmesine bas.
@@ -45,7 +50,7 @@ trafiğini yönlendirmez ve HTTPS içeriğini çözmez. **Durdur** düğmesi de 
 uygulamanın kendisinin başlattığı iki yardımcı süreci kapatır.
 
 Teknik ayrıntılar ve elle yeniden üretim adımları için
-[Discord bağlantı çözümü](DISCORD-BAGLANTI-COZUMU.md) belgesine bak.
+[Discord bağlantı çözümü](docs/DISCORD-BAGLANTI-COZUMU.md) belgesine bak.
 
 ## Kaldırma ve eski ayarlara dönme
 
@@ -62,12 +67,14 @@ Kaynak koddan yardımcı scriptleri kullandıysan:
 ```
 
 Tam geri alma ve doğrulama adımları
-[rehberde](DISCORD-BAGLANTI-COZUMU.md#durdurma-ve-tam-geri-alma) bulunur.
+[rehberde](docs/DISCORD-BAGLANTI-COZUMU.md#durdurma-ve-tam-geri-alma) bulunur.
 
 ## Sistem gereksinimleri
 
 - macOS 13 Ventura veya daha yeni sürüm
-- Intel veya Apple Silicon Mac
+- Intel Mac (mevcut beta Release paketi)
+- Apple Silicon Mac (kaynak koddan derleme desteklenir; hazır beta paketi henüz
+  yayımlanmadı)
 - `/Applications/Discord.app` altında kurulu Discord
 
 ## Sorun giderme
@@ -85,16 +92,16 @@ Tam geri alma ve doğrulama adımları
 Gereksinimler: Xcode Command Line Tools ve Swift 5.9 veya daha yeni sürüm.
 
 ```bash
-git clone <fork-adresi>
+git clone https://github.com/karacanil/SplitWire-Turkey-macOS.git
 cd SplitWire-Turkey-macOS
 ./build.sh
 open SplitWire-Turkey.app
 ```
 
 `build.sh`, Intel ve Apple Silicon için universal uygulama üretir ve yerel
-geliştirme için ad-hoc imzalar. Halka açık release'ler Developer ID ile
-imzalanmalı ve Apple tarafından notarize edilmelidir; ayrıntılar
-[yayın kontrol listesinde](RELEASE-CHECKLIST.md) yer alır.
+geliştirme için ad-hoc imzalar. Genel dağıtıma yönelik kararlı release'ler
+Developer ID ile imzalanmalı ve Apple tarafından notarize edilmelidir; ayrıntılar
+[yayın kontrol listesinde](docs/RELEASE-CHECKLIST.md) yer alır.
 
 Yalnızca Intel veya Apple Silicon paketi oluşturmak için:
 
@@ -112,6 +119,14 @@ TARGET_ARCH=arm64 ./build.sh   # Apple Silicon
 - Hassas logları issue'lara yüklemeden önce kişisel bilgileri temizlemek gerekir.
 
 Ayrıntılar: [PRIVACY.md](PRIVACY.md) ve [SECURITY.md](SECURITY.md).
+
+## Belgeler
+
+- [Kullanım kılavuzu](docs/KULLANIM.md)
+- [Discord çözümünün teknik açıklaması](docs/DISCORD-BAGLANTI-COZUMU.md)
+- [Proje yapısı](docs/PROJE-YAPISI.md)
+- [Yayın kontrol listesi](docs/RELEASE-CHECKLIST.md)
+- [Sürüm notları](docs/releases/)
 
 ## Kapsam
 

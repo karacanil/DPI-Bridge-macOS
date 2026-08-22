@@ -11,9 +11,13 @@ Sources/
 │   └── Resources/bin/ciadpi     Universal ByeDPI binary
 └── DiscordHTTPProxy/main.c      Discord güncelleyicisi HTTP→SOCKS köprüsü
 
+docs/                            Kullanım, teknik açıklama ve release belgeleri
+scripts/                         Geliştirme, doğrulama ve geri alma araçları
+byedpi/                          Upstream ByeDPI kaynak kodu ve lisansı
+AppIcon.icns                     Uygulama paketinde kullanılan macOS ikonu
+AppIcon.iconset/                 İkonun düzenlenebilir kaynak boyutları
 SplitWire-Cloudflare-Encrypted-DNS.mobileconfig
                                  İsteğe bağlı DNS over HTTPS profili
-scripts/                         Geliştirme, doğrulama ve geri alma araçları
 ```
 
 ## Çalışma akışı
@@ -35,9 +39,10 @@ Yardımcı proxy yalnızca localhost'a bind olur, yalnızca Discord alan adları
 - `SplitWire-Turkey`
 - `discord-http-proxy`
 
-`build.sh` iki macOS mimarisi için universal release derlemesi yapar, universal
-`ciadpi` ile DNS profilini uygulama paketine kopyalar ve yerel test için ad-hoc
-imza uygular.
+`build.sh` varsayılan olarak iki macOS mimarisini içeren universal release
+derlemesi yapar. `TARGET_ARCH=x86_64` veya `TARGET_ARCH=arm64` ile tek mimarili
+paket de üretilebilir. Script uygun `ciadpi` mimarisini ve DNS profilini uygulama
+paketine kopyalar, ardından yerel test için ad-hoc imza uygular.
 
 Halka açık dağıtımda ad-hoc imza yeterli değildir. Developer ID imzası ve Apple
 notarizasyonu için [RELEASE-CHECKLIST.md](RELEASE-CHECKLIST.md) kullanılmalıdır.

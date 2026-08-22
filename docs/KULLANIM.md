@@ -2,7 +2,9 @@
 
 ## İlk kurulum
 
-1. Release paketini indir ve uygulamayı **Applications** klasörüne taşı.
+1. Mac'in işlemcisine uygun Release paketini indir ve uygulamayı
+   **Applications** klasörüne taşı. Mevcut beta paketi yalnızca Intel
+   (`x86_64`) Mac'ler içindir.
 2. Uygulamaya sağ tıklayıp **Aç** seçeneğini kullan.
 3. **Discord** ekranında **Şifreli DNS Profilini Aç** düğmesine bas.
 4. Sistem Ayarları → Genel → Aygıt Yönetimi bölümünde profili yükle.
@@ -11,6 +13,10 @@
 Uygulama ByeDPI'ı ve Discord güncelleyicisinin ihtiyaç duyduğu yerel köprüyü
 otomatik başlatır. İlk açılışta Discord modülleri indirildiği için işlem normalden
 uzun sürebilir.
+
+Mevcut Intel beta paketi ad-hoc imzalı ve notarize edilmemiştir. macOS
+tanımlanamayan geliştirici uyarısı gösterebilir. Rastgele `xattr`, `sudo` veya
+sertifika komutlarıyla Gatekeeper'ı devre dışı bırakma.
 
 ## Günlük kullanım
 
@@ -34,9 +40,8 @@ kapatma.
 
 ### Uygulama açılmıyor
 
-Uygulamaya Finder'da sağ tıklayıp **Aç** seçeneğini kullan. Resmî release'in
-imza/notarizasyon bilgisi release notunda yayınlanmalıdır. İnternetten bulunan
-rastgele `xattr`, `sudo` veya sertifika komutlarını çalıştırma.
+Uygulamaya Finder'da sağ tıklayıp **Aç** seçeneğini kullan. Release'in
+imza/notarizasyon bilgisini release notundan kontrol et.
 
 ## Kaldırma
 

@@ -14,7 +14,8 @@ Bu liste her halka açık sürümden önce tamamlanmalıdır.
 ## Derleme
 
 - [ ] Temiz checkout üzerinde `./build.sh` çalıştı.
-- [ ] Ana uygulama, `ciadpi` ve `discord-http-proxy` hem `arm64` hem `x86_64`.
+- [ ] Universal pakette üç binary de `arm64` + `x86_64`; mimariye özel pakette
+      üçü de release etiketinde belirtilen tek mimariyi içeriyor.
 - [ ] Uygulama içindeki DNS profili `plutil -lint` kontrolünden geçti.
 - [ ] Uygulama Developer ID Application sertifikasıyla imzalandı.
 - [ ] Apple notarizasyonu tamamlandı ve ticket uygulamaya stapled edildi.

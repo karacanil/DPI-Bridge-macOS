@@ -20,18 +20,20 @@ Rapora mümkünse şunları ekle:
 - Kişisel bilgi içermeyen log veya ekran görüntüsü
 - Önerilen çözüm
 
-Parola, Discord token'ı, çerez, WireGuard özel anahtarı, tam ağ yakalaması veya
-başka kişilere ait veri gönderme.
+Parola, Discord token'ı, çerez, özel anahtar, tam ağ yakalaması veya başka
+kişilere ait veri gönderme.
 
 ## Güvenlik sınırları
 
 - Yerel proxy'ler `127.0.0.1` dışına bind edilmemelidir.
 - HTTP CONNECT köprüsünün Discord alan adı ve `443` kısıtı gevşetilmemelidir.
 - Komut satırına kullanıcı girdisi shell metni olarak eklenmemelidir.
-- Release paketleri Developer ID ile imzalanmalı, notarize edilmeli ve SHA-256
-  özetiyle yayımlanmalıdır.
-- Üçüncü taraf `ciadpi` binary'si repodaki kaynaklardan yeniden üretilebilmeli
-  ve iki macOS mimarisini içermelidir.
+- Genel dağıtıma yönelik kararlı release paketleri Developer ID ile imzalanmalı,
+  notarize edilmeli ve SHA-256 özetiyle yayımlanmalıdır. İmzalanmamış test
+  sürümleri açıkça pre-release olarak etiketlenip bu kısıtı belirtmelidir.
+- Üçüncü taraf `ciadpi` binary'si repodaki kaynaklardan yeniden üretilebilmelidir.
+  Repo içindeki kopya iki macOS mimarisini; mimariye özel release paketi ise
+  yalnızca etiketinde belirtilen mimariyi içermelidir.
 
 ## Log paylaşımı
 

@@ -11,7 +11,7 @@ Sorun iki ayrı katmandan oluşuyordu:
 1. İnternet sağlayıcısının DNS'i `discord.com` ve `updates.discord.com` gibi
    alan adlarını gerçek Discord adresleri yerine `195.175.254.2` adresine
    yönlendiriyordu.
-2. Discord'un yeni Rust tabanlı güncelleyicisi Electron'ın
+2. Discord'un Electron sürecinden ayrı çalışan güncelleyicisi
    `--proxy-server=socks5://127.0.0.1:1080` parametresini kullanmıyor. Bu nedenle
    ana Discord uygulaması ByeDPI üzerinden çalışabilse bile güncelleyici doğrudan
    bağlanmaya çalışıp açılış ekranında kalıyordu.
@@ -44,7 +44,8 @@ Alan adı çözümleme ──DNS over HTTPS──▶ Cloudflare
 
 - macOS 13 veya daha yeni sürüm
 - `/Applications/Discord.app` altında kurulu Discord
-- Derlenmiş `SplitWire-Turkey.app` veya repodaki çalıştırılabilir `ciadpi`
+- Derlenmiş `SplitWire-Turkey.app`; script ile çalışılacaksa ayrıca repoda
+  derlenmiş `discord-http-proxy` çıktısı
 - Profil kurulumunu onaylayabilecek bir macOS kullanıcı hesabı
 
 ## İlk kurulum
@@ -71,9 +72,9 @@ profiles list -type configuration
 dscacheutil -q host -a name discord.com
 ```
 
-Çıktıda `com.splitwire.cloudflare-doh` görülmeli. `discord.com` adresleri
-`162.159.x.x` benzeri gerçek Cloudflare/Discord adresleri olmalı;
-`195.175.254.2` görülmemeli.
+Çıktıda `com.splitwire.cloudflare-doh` görülmeli. `discord.com` geçerli genel
+IP adreslerine çözülmeli; engelleme yönlendirmesinde görülen `195.175.254.2`
+adresine çözülmemeli.
 
 ### 2. Tek komutla Discord'u başlat
 

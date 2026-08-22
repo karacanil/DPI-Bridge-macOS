@@ -105,6 +105,7 @@ ByeDPI:
 
 ```bash
 ./SplitWire-Turkey.app/Contents/Resources/bin/ciadpi \
+  --ip 127.0.0.1 \
   --disorder 1 --auto=torst --tlsrec 1+s
 ```
 

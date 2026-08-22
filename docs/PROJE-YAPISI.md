@@ -29,6 +29,9 @@ açılırken ayrıca `discord-http-proxy` yardımcısını çalıştırır:
 - Discord güncelleyicisi: HTTP CONNECT `127.0.0.1:1081`
 - HTTP CONNECT yardımcısının upstream'i: SOCKS5 `127.0.0.1:1080`
 
+ByeDPI'ın varsayılanı tüm ağ arayüzlerinde dinlemek olduğundan uygulama ve
+başlatma scripti açıkça `--ip 127.0.0.1` parametresini kullanır.
+
 Yardımcı proxy yalnızca localhost'a bind olur, yalnızca Discord alan adlarına ve
 `443` portuna izin verir. TLS trafiğinin içeriğini açmaz veya kaydetmez.
 

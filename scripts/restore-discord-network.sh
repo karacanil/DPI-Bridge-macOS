@@ -13,6 +13,14 @@ stop_matching_listener() {
         command=$(ps -p "$pid" -o command= 2>/dev/null || true)
         if [[ "$command" == *"$expected"* ]]; then
             kill "$pid" 2>/dev/null || true
+            for _ in {1..10}; do
+                kill -0 "$pid" 2>/dev/null || break
+                sleep 0.1
+            done
+            command=$(ps -p "$pid" -o command= 2>/dev/null || true)
+            if [[ "$command" == *"$expected"* ]]; then
+                kill -9 "$pid" 2>/dev/null || true
+            fi
         else
             print "Uyarı: $port portundaki $pid süreci SplitWire'a ait görünmüyor; kapatılmadı."
         fi

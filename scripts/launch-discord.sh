@@ -56,19 +56,30 @@ find_proxy_bridge() {
 
 stop_owned_process() {
     local pid_file=$1
+    local expected=$2
     if [[ -f "$pid_file" ]]; then
         local pid
         pid=$(<"$pid_file")
-        if kill -0 "$pid" 2>/dev/null; then
+        local command
+        command=$(ps -p "$pid" -o command= 2>/dev/null || true)
+        if [[ "$command" == *"$expected"* ]]; then
             kill "$pid" 2>/dev/null || true
+            for _ in {1..10}; do
+                kill -0 "$pid" 2>/dev/null || break
+                sleep 0.1
+            done
+            command=$(ps -p "$pid" -o command= 2>/dev/null || true)
+            if [[ "$command" == *"$expected"* ]]; then
+                kill -9 "$pid" 2>/dev/null || true
+            fi
         fi
         rm -f "$pid_file"
     fi
 }
 
 if [[ "${1:-}" == "--stop" ]]; then
-    stop_owned_process "$BRIDGE_PID_FILE"
-    stop_owned_process "$CIADPI_PID_FILE"
+    stop_owned_process "$BRIDGE_PID_FILE" "discord-http-proxy"
+    stop_owned_process "$CIADPI_PID_FILE" "ciadpi"
     print "SplitWire yardımcı süreçleri durduruldu."
     exit 0
 fi
@@ -86,7 +97,8 @@ fi
 
 if ! port_is_listening 1080; then
     CIADPI_BIN=$(find_ciadpi) || die "ciadpi çalıştırılabilir dosyası bulunamadı. Önce uygulamayı derle."
-    nohup "$CIADPI_BIN" --disorder 1 --auto=torst --tlsrec 1+s >"$CIADPI_LOG" 2>&1 &
+    nohup "$CIADPI_BIN" --ip 127.0.0.1 \
+        --disorder 1 --auto=torst --tlsrec 1+s >"$CIADPI_LOG" 2>&1 &
     print $! >"$CIADPI_PID_FILE"
     sleep 1
 fi

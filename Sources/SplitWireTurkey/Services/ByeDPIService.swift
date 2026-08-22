@@ -1,5 +1,6 @@
 import AppKit
 import Combine
+import Darwin
 import Foundation
 
 @MainActor
@@ -46,8 +47,12 @@ final class ByeDPIService: ObservableObject {
     }
 
     func shutdown() {
-        proxyBridgeProcess?.terminate()
-        byeDPIProcess?.terminate()
+        for process in [proxyBridgeProcess, byeDPIProcess].compactMap({ $0 }) where process.isRunning {
+            process.terminate()
+            if process.isRunning {
+                Darwin.kill(process.processIdentifier, SIGKILL)
+            }
+        }
         proxyBridgeProcess = nil
         byeDPIProcess = nil
         isRunning = false
@@ -75,7 +80,10 @@ final class ByeDPIService: ObservableObject {
 
         let process = Process()
         process.executableURL = URL(fileURLWithPath: path)
-        process.arguments = ["--disorder", "1", "--auto=torst", "--tlsrec", "1+s"]
+        process.arguments = [
+            "--ip", "127.0.0.1",
+            "--disorder", "1", "--auto=torst", "--tlsrec", "1+s"
+        ]
         process.standardOutput = FileHandle.nullDevice
         process.standardError = FileHandle.nullDevice
         try process.run()
@@ -131,7 +139,9 @@ final class ByeDPIService: ObservableObject {
         let processes = [proxyBridgeProcess, byeDPIProcess].compactMap { $0 }
         processes.filter(\.isRunning).forEach { $0.terminate() }
         try? await Task.sleep(nanoseconds: 300_000_000)
-        processes.filter(\.isRunning).forEach { $0.interrupt() }
+        for process in processes where process.isRunning {
+            Darwin.kill(process.processIdentifier, SIGKILL)
+        }
         proxyBridgeProcess = nil
         byeDPIProcess = nil
         isRunning = false

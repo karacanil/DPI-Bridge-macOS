@@ -47,6 +47,10 @@ rg -q 'inet_pton\(AF_INET, "127\.0\.0\.1"' Sources/DiscordHTTPProxy/main.c \
     || fail "Proxy localhost'a sabitlenmemiş."
 rg -q 'parsed_port != 443' Sources/DiscordHTTPProxy/main.c \
     || fail "Proxy HTTPS portuyla sınırlandırılmamış."
+rg -q '"--ip", "127\.0\.0\.1"' Sources/SplitWireTurkey/Services/ByeDPIService.swift \
+    || fail "Uygulama ByeDPI'ı localhost'a sabitlemiyor."
+rg -q -- '--ip 127\.0\.0\.1' scripts/launch-discord.sh \
+    || fail "Başlatma scripti ByeDPI'ı localhost'a sabitlemiyor."
 
 print "[6/6] Git diff biçimi kontrol ediliyor..."
 git diff --check

@@ -16,7 +16,7 @@ struct ContentView: View {
 
                 AboutView()
                     .tabItem {
-                        Label("Hakkında", systemImage: "info.circle")
+                        Label(appState.text("tab.about"), systemImage: "info.circle")
                     }
                     .tag(3)
             }
@@ -36,19 +36,25 @@ struct HeaderView: View {
                 Text("SplitWire-Turkey")
                     .font(.title)
                     .fontWeight(.bold)
-                Text("macOS Edition")
+                Text(appState.text("header.edition"))
                     .font(.caption)
                     .foregroundColor(.secondary)
             }
 
             Spacer()
 
+            Picker("", selection: $appState.language) {
+                ForEach(AppLanguage.allCases) { language in
+                    Text(language.displayName).tag(language)
+                }
+            }
+            .pickerStyle(.menu)
+            .frame(width: 110)
+
             Toggle("", isOn: $appState.isDarkMode)
                 .toggleStyle(.switch)
                 .labelsHidden()
-                .onChange(of: appState.isDarkMode) { _ in
-                    appState.saveAppearance()
-                }
+                .help(appState.text("appearance.dark"))
         }
         .padding()
         .background(Color(NSColor.controlBackgroundColor))

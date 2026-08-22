@@ -1,22 +1,23 @@
 import SwiftUI
 
 struct ByeDPIView: View {
+    @EnvironmentObject private var appState: AppState
     @ObservedObject private var service = ByeDPIService.shared
 
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
             VStack(alignment: .leading, spacing: 6) {
-                Text("Discord'a Bağlan")
+                Text(appState.text("connect.title"))
                     .font(.title2.bold())
-                Text("SplitWire, Discord'u yalnızca bu Mac'te çalışan yerel proxy'ler üzerinden başlatır.")
+                Text(appState.text("connect.description"))
                     .foregroundColor(.secondary)
             }
 
-            GroupBox("İlk kullanım") {
+            GroupBox(appState.text("setup.title")) {
                 VStack(alignment: .leading, spacing: 12) {
-                    Text("İnternet sağlayıcınız Discord alan adlarını yanlış yönlendiriyorsa şifreli DNS profilini bir kez kurun.")
+                    Text(appState.text("setup.description"))
                         .foregroundColor(.secondary)
-                    Button("Şifreli DNS Profilini Aç", systemImage: "lock.shield") {
+                    Button(appState.text("setup.openProfile"), systemImage: "lock.shield") {
                         service.openEncryptedDNSProfile()
                     }
                 }
@@ -24,21 +25,24 @@ struct ByeDPIView: View {
                 .padding(8)
             }
 
-            GroupBox("Bağlantı") {
+            GroupBox(appState.text("connection.title")) {
                 VStack(alignment: .leading, spacing: 14) {
-                    Label(service.statusMessage, systemImage: service.isRunning ? "checkmark.circle.fill" : "circle")
-                        .foregroundColor(service.isRunning ? .green : .secondary)
+                    Label(
+                        service.statusText(language: appState.language),
+                        systemImage: service.isRunning ? "checkmark.circle.fill" : (service.hasError ? "exclamationmark.triangle.fill" : "circle")
+                    )
+                    .foregroundColor(service.isRunning ? .green : (service.hasError ? .red : .secondary))
                     if service.isProcessing {
                         ProgressView().progressViewStyle(.linear)
                     }
                     HStack {
-                        Button("Discord'u Başlat", systemImage: "play.fill") {
+                        Button(appState.text("connection.start"), systemImage: "play.fill") {
                             Task { await service.connectDiscord() }
                         }
                         .buttonStyle(.borderedProminent)
                         .disabled(service.isProcessing)
 
-                        Button("Durdur", systemImage: "stop.fill") {
+                        Button(appState.text("connection.stop"), systemImage: "stop.fill") {
                             Task { await service.stop() }
                         }
                         .disabled(service.isProcessing || !service.isRunning)
@@ -48,7 +52,7 @@ struct ByeDPIView: View {
                 .padding(8)
             }
 
-            Text("Yerel servisler: ByeDPI SOCKS5 127.0.0.1:1080 · Discord güncelleyici köprüsü 127.0.0.1:1081")
+            Text(appState.text("connection.ports"))
                 .font(.caption)
                 .foregroundColor(.secondary)
             Spacer()

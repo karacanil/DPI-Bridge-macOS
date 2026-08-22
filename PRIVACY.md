@@ -13,8 +13,8 @@ Uygulama şunları okumaz veya saklamaz:
 - Ağ paketlerinin içeriği
 - Konum, kişi listesi, kamera veya mikrofon verileri
 
-Yalnızca arayüzün açık/koyu görünüm tercihi macOS `UserDefaults` alanında
-cihazda saklanır.
+Yalnızca arayüzün açık/koyu görünüm ve dil tercihleri macOS `UserDefaults`
+alanında cihazda saklanır.
 
 ## Ağ bağlantıları
 
@@ -34,6 +34,19 @@ işleyebilir. İnternet sağlayıcısı hedef IP adreslerini görmeye devam edeb
 Bu portlar yalnızca localhost üzerinde dinler; aynı ağdaki başka cihazlardan
 erişilemez. Güncelleyici köprüsü sadece Discord alan adlarına ve `443` portuna
 izin verir.
+
+## Klavye ve Input Monitoring izni
+
+SplitWire klavye, fare veya trackpad girdilerini okumaz ve macOS **Input
+Monitoring / Giriş İzleme** iznine ihtiyaç duymaz. Discord, sistem genelinde
+Push-to-Talk veya başka global tuş kısayolları kullanıldığında kendi adına bu
+izni isteyebilir. Bu özellikleri kullanmıyorsan Discord'un isteğini de
+reddedebilirsin; metin ve sesli etkinlik modu çalışmaya devam eder.
+
+Beta 3 ve sonrasında Discord macOS Launch Services üzerinden başlatılır. Böylece
+Discord'un kendi global kısayol isteği SplitWire'a atfedilmez. Eski Beta 2 ile
+SplitWire'a izin verdiysen Sistem Ayarları → Gizlilik ve Güvenlik → Giriş İzleme
+altından SplitWire iznini kapatabilirsin.
 
 ## Kaldırma
 

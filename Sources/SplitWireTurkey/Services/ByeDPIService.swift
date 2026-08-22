@@ -5,11 +5,20 @@ import Foundation
 
 @MainActor
 final class ByeDPIService: ObservableObject {
+    enum Status {
+        case ready
+        case preparing
+        case connected
+        case stopping
+        case stopped
+        case error(String)
+    }
+
     static let shared = ByeDPIService()
 
     @Published private(set) var isRunning = false
     @Published private(set) var isProcessing = false
-    @Published private(set) var statusMessage = "Hazır"
+    @Published private(set) var status = Status.ready
 
     private var byeDPIProcess: Process?
     private var proxyBridgeProcess: Process?
@@ -17,7 +26,7 @@ final class ByeDPIService: ObservableObject {
     func connectDiscord() async {
         guard !isProcessing else { return }
         isProcessing = true
-        statusMessage = "Discord bağlantısı hazırlanıyor…"
+        status = .preparing
         defer { isProcessing = false }
 
         do {
@@ -29,20 +38,20 @@ final class ByeDPIService: ObservableObject {
             try await Task.sleep(nanoseconds: 300_000_000)
             try await launchDiscord()
             isRunning = true
-            statusMessage = "Discord proxy üzerinden başlatıldı"
+            status = .connected
         } catch {
             await stopManagedProcesses()
-            statusMessage = "Hata: \(error.localizedDescription)"
-            showAlert(title: "Bağlantı kurulamadı", message: error.localizedDescription)
+            status = .error(error.localizedDescription)
+            showAlert(titleKey: "error.connection.title", message: error.localizedDescription)
         }
     }
 
     func stop() async {
         guard !isProcessing else { return }
         isProcessing = true
-        statusMessage = "Yerel proxy'ler durduruluyor…"
+        status = .stopping
         await stopManagedProcesses()
-        statusMessage = "Durduruldu"
+        status = .stopped
         isProcessing = false
     }
 
@@ -62,9 +71,29 @@ final class ByeDPIService: ObservableObject {
         isRunning = byeDPIProcess?.isRunning == true && proxyBridgeProcess?.isRunning == true
     }
 
+    func statusText(language: AppLanguage) -> String {
+        switch status {
+        case .ready: return L10n.text("status.ready", language: language)
+        case .preparing: return L10n.text("status.preparing", language: language)
+        case .connected: return L10n.text("status.connected", language: language)
+        case .stopping: return L10n.text("status.stopping", language: language)
+        case .stopped: return L10n.text("status.stopped", language: language)
+        case .error(let message):
+            return "\(L10n.text("status.error", language: language)): \(message)"
+        }
+    }
+
+    var hasError: Bool {
+        if case .error = status { return true }
+        return false
+    }
+
     func openEncryptedDNSProfile() {
         guard let profilePath = firstExistingPath(profileCandidates()) else {
-            showAlert(title: "Profil bulunamadı", message: "Şifreli DNS profili uygulama paketinde bulunamadı. Uygulamayı yeniden indirin.")
+            showAlert(
+                titleKey: "error.profile.title",
+                message: L10n.text("error.profile.missing")
+            )
             return
         }
         NSWorkspace.shared.open(URL(fileURLWithPath: profilePath))
@@ -72,10 +101,10 @@ final class ByeDPIService: ObservableObject {
 
     private func startByeDPI() throws {
         guard !isPortListening(1080) else {
-            throw serviceError("1080 portu başka bir uygulama tarafından kullanılıyor. Diğer proxy uygulamalarını kapatıp tekrar deneyin.")
+            throw serviceError(L10n.text("error.port1080"))
         }
         guard let path = firstExistingPath(ciadpiCandidates()) else {
-            throw serviceError("ByeDPI yardımcısı bulunamadı. Uygulamayı yeniden indirin.")
+            throw serviceError(L10n.text("error.ciadpi.missing"))
         }
 
         let process = Process()
@@ -87,17 +116,17 @@ final class ByeDPIService: ObservableObject {
         process.standardOutput = FileHandle.nullDevice
         process.standardError = FileHandle.nullDevice
         try process.run()
-        guard process.isRunning else { throw serviceError("ByeDPI başlatılamadı.") }
+        guard process.isRunning else { throw serviceError(L10n.text("error.ciadpi.start")) }
         byeDPIProcess = process
     }
 
     private func startProxyBridge() throws {
         if proxyBridgeProcess?.isRunning == true { return }
         guard !isPortListening(1081) else {
-            throw serviceError("1081 portu başka bir uygulama tarafından kullanılıyor. Diğer proxy uygulamalarını kapatıp tekrar deneyin.")
+            throw serviceError(L10n.text("error.port1081"))
         }
         guard let path = firstExistingPath(proxyBridgeCandidates()) else {
-            throw serviceError("Discord güncelleyici köprüsü bulunamadı. Uygulamayı yeniden indirin.")
+            throw serviceError(L10n.text("error.bridge.missing"))
         }
 
         let process = Process()
@@ -105,14 +134,14 @@ final class ByeDPIService: ObservableObject {
         process.standardOutput = FileHandle.nullDevice
         process.standardError = FileHandle.nullDevice
         try process.run()
-        guard process.isRunning else { throw serviceError("Discord güncelleyici köprüsü başlatılamadı.") }
+        guard process.isRunning else { throw serviceError(L10n.text("error.bridge.start")) }
         proxyBridgeProcess = process
     }
 
     private func launchDiscord() async throws {
         let path = "/Applications/Discord.app/Contents/MacOS/Discord"
         guard FileManager.default.fileExists(atPath: path) else {
-            throw serviceError("Discord /Applications klasöründe bulunamadı.")
+            throw serviceError(L10n.text("error.discord.missing"))
         }
 
         let runningDiscord = NSRunningApplication.runningApplications(withBundleIdentifier: "com.hnc.Discord")
@@ -120,16 +149,18 @@ final class ByeDPIService: ObservableObject {
         if !runningDiscord.isEmpty { try? await Task.sleep(nanoseconds: 1_000_000_000) }
 
         let process = Process()
-        process.executableURL = URL(fileURLWithPath: path)
-        process.arguments = ["--proxy-server=socks5://127.0.0.1:1080", "--disable-quic"]
-        var environment = ProcessInfo.processInfo.environment
+        process.executableURL = URL(fileURLWithPath: "/usr/bin/open")
         let updaterProxy = "http://127.0.0.1:1081"
+        var arguments = ["-n", "-b", "com.hnc.Discord"]
         for key in ["HTTPS_PROXY", "HTTP_PROXY", "ALL_PROXY", "https_proxy", "http_proxy", "all_proxy"] {
-            environment[key] = updaterProxy
+            arguments += ["--env", "\(key)=\(updaterProxy)"]
         }
-        environment["NO_PROXY"] = "127.0.0.1,localhost"
-        environment["no_proxy"] = "127.0.0.1,localhost"
-        process.environment = environment
+        arguments += [
+            "--env", "NO_PROXY=127.0.0.1,localhost",
+            "--env", "no_proxy=127.0.0.1,localhost",
+            "--args", "--proxy-server=socks5://127.0.0.1:1080", "--disable-quic"
+        ]
+        process.arguments = arguments
         process.standardOutput = FileHandle.nullDevice
         process.standardError = FileHandle.nullDevice
         try process.run()
@@ -194,12 +225,12 @@ final class ByeDPIService: ObservableObject {
         NSError(domain: "SplitWire", code: 1, userInfo: [NSLocalizedDescriptionKey: message])
     }
 
-    private func showAlert(title: String, message: String) {
+    private func showAlert(titleKey: String, message: String) {
         let alert = NSAlert()
-        alert.messageText = title
+        alert.messageText = L10n.text(titleKey)
         alert.informativeText = message
         alert.alertStyle = .warning
-        alert.addButton(withTitle: "Tamam")
+        alert.addButton(withTitle: L10n.text("alert.ok"))
         alert.runModal()
     }
 }

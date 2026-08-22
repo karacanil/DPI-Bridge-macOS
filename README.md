@@ -64,6 +64,11 @@ Uygulama sistem genelindeki proxy ayarlarını değiştirmez, başka uygulamalar
 trafiğini yönlendirmez ve HTTPS içeriğini çözmez. **Durdur** düğmesi de yalnızca
 uygulamanın kendisinin başlattığı iki yardımcı süreci kapatır.
 
+SplitWire klavye girdilerini izlemez ve **Input Monitoring / Giriş İzleme**
+iznine ihtiyaç duymaz. Discord, sistem genelinde Push-to-Talk veya global
+kısayollar için kendi adına bu izni isteyebilir; bu özellikleri kullanmıyorsan
+reddedebilirsin.
+
 Teknik ayrıntılar ve elle yeniden üretim adımları için
 [Discord bağlantı çözümü](docs/DISCORD-BAGLANTI-COZUMU.md) belgesine bak.
 

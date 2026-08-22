@@ -51,6 +51,10 @@ rg -q '"--ip", "127\.0\.0\.1"' Sources/SplitWireTurkey/Services/ByeDPIService.sw
     || fail "Uygulama ByeDPI'ı localhost'a sabitlemiyor."
 rg -q -- '--ip 127\.0\.0\.1' scripts/launch-discord.sh \
     || fail "Başlatma scripti ByeDPI'ı localhost'a sabitlemiyor."
+rg -q 'fileURLWithPath: "/usr/bin/open"' Sources/SplitWireTurkey/Services/ByeDPIService.swift \
+    || fail "Discord Launch Services üzerinden başlatılmıyor."
+rg -q '"--env"' Sources/SplitWireTurkey/Services/ByeDPIService.swift \
+    || fail "Discord proxy ortamı Launch Services'e aktarılmıyor."
 
 print "[6/6] Git diff biçimi kontrol ediliyor..."
 git diff --check

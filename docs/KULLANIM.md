@@ -44,6 +44,18 @@ profil yönergesi:
 
 ## Sorun giderme
 
+### Klavye girdilerini alma izni isteniyor
+
+SplitWire bu izne ihtiyaç duymaz ve klavye girdilerini okumaz. Discord,
+sistem genelinde Push-to-Talk veya global tuş kısayolları kullanabilmek için
+**Input Monitoring / Giriş İzleme** izni isteyebilir. Bu özellikleri
+kullanmıyorsan isteği reddedebilirsin.
+
+İzin ekranında SplitWire adı görünüyorsa eski Beta 2 kullanılıyor olabilir.
+Beta 3'e yükselt ve Sistem Ayarları → Gizlilik ve Güvenlik → Giriş İzleme
+altından eski SplitWire iznini kapat. Beta 3 Discord'u Launch Services üzerinden
+başlattığı için Discord'a ait izin SplitWire adına gösterilmez.
+
 ### Checking for Updates ekranı geçilmiyor
 
 1. Şifreli DNS profilinin kurulu olduğunu kontrol et.

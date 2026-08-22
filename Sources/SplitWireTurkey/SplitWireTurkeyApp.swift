@@ -14,7 +14,7 @@ struct SplitWireTurkeyApp: App {
         .windowStyle(.hiddenTitleBar)
         .commands {
             CommandGroup(replacing: .appInfo) {
-                Button("SplitWire-Turkey Hakkında") {
+                Button(appState.text("about.menu")) {
                     NSApplication.shared.orderFrontStandardAboutPanel(
                         options: [
                             NSApplication.AboutPanelOptionKey.applicationName: "SplitWire-Turkey",

@@ -5,6 +5,7 @@ Bu liste her halka açık sürümden önce tamamlanmalıdır.
 ## Kaynak ve gizlilik
 
 - [ ] `./scripts/preflight-release.sh` başarıyla tamamlandı.
+- [ ] `./scripts/audit-public-readiness.sh` başarıyla tamamlandı.
 - [ ] `git status --short` yalnızca sürüme girecek dosyaları gösteriyor.
 - [ ] `.env`, sertifika, özel anahtar, token, kişisel yol ve yerel log yok.
 - [ ] Git geçmişi secret scanner ile kontrol edildi.
@@ -16,10 +17,14 @@ Bu liste her halka açık sürümden önce tamamlanmalıdır.
 - [ ] Temiz checkout üzerinde `./build.sh` çalıştı.
 - [ ] Universal pakette üç binary de `arm64` + `x86_64`; mimariye özel pakette
       üçü de release etiketinde belirtilen tek mimariyi içeriyor.
+- [ ] `ciadpi`, [THIRD_PARTY.md](../THIRD_PARTY.md) içinde sabitlenen upstream
+      commit'in vendored kaynaklarından yeniden üretildi.
 - [ ] Uygulama içindeki DNS profili `plutil -lint` kontrolünden geçti.
 - [ ] Uygulama Developer ID Application sertifikasıyla imzalandı.
 - [ ] Apple notarizasyonu tamamlandı ve ticket uygulamaya stapled edildi.
 - [ ] Zip veya DMG için SHA-256 özeti üretildi.
+- [ ] ZIP içinde AppleDouble (`._*`, `__MACOSX`) girdisi ve binary'lerde yerel
+      `/Users/` veya `/home/` build yolu yok.
 
 Örnek imza/notarizasyon akışı (kimlik ve profil adlarını kendi CI secret'larınla
 sağla; repoya yazma):

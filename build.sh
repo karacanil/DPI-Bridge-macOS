@@ -6,7 +6,7 @@
 set -euo pipefail
 
 APP_NAME="DPI-Bridge"
-VERSION=${VERSION:-1.2.0}
+VERSION=${VERSION:-1.2.1}
 BUILD_NUMBER=${BUILD_NUMBER:-1}
 TARGET_ARCH=${TARGET_ARCH:-universal}
 
@@ -24,8 +24,12 @@ if [ "${SKIP_BUILD:-0}" != "1" ]; then
     rm -rf .build
 fi
 
+CIADPI_BUILD=".build/ciadpi/ciadpi"
+
 # Build the application
 if [ "${SKIP_BUILD:-0}" != "1" ]; then
+    echo "📦 Building ByeDPI from pinned source..."
+    TARGET_ARCH="${TARGET_ARCH}" ./scripts/build-ciadpi.sh
     echo "📦 Building Swift package..."
     if [[ "${TARGET_ARCH}" == "universal" || "${TARGET_ARCH}" == "x86_64" ]]; then
         swift build -c release --arch x86_64 --scratch-path .build/x86_64
@@ -67,16 +71,12 @@ cp "${OUTPUT_BIN_DIR}/${APP_NAME}" "${MACOS}/"
 # Copy bundled helper binaries
 echo "📋 Copying helper binaries..."
 mkdir -p "${RESOURCES}/bin"
-if [ -f "Sources/DPIBridge/Resources/bin/ciadpi" ]; then
-    if [[ "${TARGET_ARCH}" == "universal" ]]; then
-        cp "Sources/DPIBridge/Resources/bin/ciadpi" "${RESOURCES}/bin/"
-    else
-        lipo -thin "${TARGET_ARCH}" "Sources/DPIBridge/Resources/bin/ciadpi" -output "${RESOURCES}/bin/ciadpi"
-    fi
+if [ -f "${CIADPI_BUILD}" ]; then
+    cp "${CIADPI_BUILD}" "${RESOURCES}/bin/ciadpi"
     chmod +x "${RESOURCES}/bin/ciadpi"
     echo "  ✓ ByeDPI (ciadpi) copied"
 else
-    echo "  ✗ Sources/DPIBridge/Resources/bin/ciadpi not found"
+    echo "  ✗ ${CIADPI_BUILD} not found"
     exit 1
 fi
 
@@ -84,8 +84,14 @@ cp "${OUTPUT_BIN_DIR}/discord-http-proxy" "${RESOURCES}/bin/"
 chmod +x "${RESOURCES}/bin/discord-http-proxy"
 echo "  ✓ Discord updater proxy copied"
 
+# SwiftPM release builds contain local DWARF paths unless final executables are
+# stripped. Public artifacts must not disclose the build user's filesystem.
+strip -S "${MACOS}/${APP_NAME}"
+strip -S "${RESOURCES}/bin/discord-http-proxy"
+
 mkdir -p "${RESOURCES}/profiles"
-cp "DPI-Bridge-Cloudflare-Encrypted-DNS.mobileconfig" "${RESOURCES}/profiles/"
+COPYFILE_DISABLE=1 cp -X \
+    "DPI-Bridge-Cloudflare-Encrypted-DNS.mobileconfig" "${RESOURCES}/profiles/"
 echo "  ✓ Encrypted DNS profile copied"
 
 # Copy App Icon
@@ -139,6 +145,7 @@ echo "APPL????" > "${CONTENTS}/PkgInfo"
 
 # Ad-hoc signing keeps local builds internally consistent. Public releases
 # should replace this with Developer ID signing and notarization.
+xattr -cr "${APP_BUNDLE}"
 codesign --force --deep --sign - "${APP_BUNDLE}"
 
 echo "✅ Build complete!"

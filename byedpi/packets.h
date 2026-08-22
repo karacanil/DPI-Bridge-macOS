@@ -18,6 +18,13 @@
 #define MH_SPACE 2
 #define MH_DMIX 4
 
+#define ANTOHS(data, i) \
+    (((uint16_t)data[i] << 8) + (uint8_t)data[i + 1])
+    
+#define SHTONA(data, i, x) \
+    data[i] = (uint8_t)((x) >> 8); \
+    data[i + 1] = ((x) & 0xff)
+
 extern char tls_data[517];
 extern char http_data[43];
 extern char udp_data[64];

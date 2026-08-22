@@ -31,9 +31,10 @@ kişilere ait veri gönderme.
 - Genel dağıtıma yönelik kararlı release paketleri Developer ID ile imzalanmalı,
   notarize edilmeli ve SHA-256 özetiyle yayımlanmalıdır. İmzalanmamış test
   sürümleri açıkça pre-release olarak etiketlenip bu kısıtı belirtmelidir.
-- Üçüncü taraf `ciadpi` binary'si repodaki kaynaklardan yeniden üretilebilmelidir.
-  Repo içindeki kopya iki macOS mimarisini; mimariye özel release paketi ise
-  yalnızca etiketinde belirtilen mimariyi içermelidir.
+- Üçüncü taraf `ciadpi` binary'si sabitlenmiş ve lisansı korunmuş upstream
+  kaynaktan release sırasında yeniden üretilmelidir. Hazır binary Git'e commit
+  edilmemelidir; mimariye özel release paketi yalnızca etiketinde belirtilen
+  mimariyi içermelidir.
 
 ## Log paylaşımı
 

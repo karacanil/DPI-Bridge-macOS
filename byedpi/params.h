@@ -32,10 +32,22 @@
 #define DETECT_HTTP_LOCAT 1
 #define DETECT_TLS_ERR 2
 #define DETECT_TORST 8
+#define DETECT_CONNECT 16
 
-#define AUTO_RECONN 1
-#define AUTO_POST 2
+#define AUTO_ONRECONN 1
+#define AUTO_NORECONN 2
 #define AUTO_SORT 4
+
+#define MODE_SOCKS5 1
+#define MODE_SOCKS4 2
+#define MODE_HTTP 4
+#define MODE_TRANSPARENT 8
+#define MODE_SHADOWSOCKS 16
+#define MODE_RAWTLS 32
+#define MODE_TCP 64
+#define MODE_SOCKS (MODE_SOCKS4 | MODE_SOCKS5)
+
+#define OUT_SUPPORT (MODE_SOCKS5 | MODE_TCP)
 
 #define FM_RAND 1
 #define FM_ORIG 2
@@ -102,23 +114,24 @@ struct desync_params {
     bool tlsminor_set;
     
     int proto;
-    int detect;
+    short detect;
+    short auto_level;
     struct mphdr *hosts;
     struct mphdr *ipset;
     uint16_t pf[2];
     int rounds[2];
     
-    union sockaddr_u custom_dst_addr;
-    bool custom_dst;
-    
-    char *file_ptr;
-    ssize_t file_size;
+    uint16_t out_type;
+    union sockaddr_u out_addr;
     
     int _optind;
     int id;
     uint64_t bit;
     int fail_count;
     int pri;
+    const char *str;
+    long cache_ttl;
+    const char *cache_file;
     
     struct desync_params *prev;
     struct desync_params *next;
@@ -127,20 +140,23 @@ struct desync_params {
 struct params {
     int dp_n;
     struct desync_params *dp;
+    uint64_t dp_full_mask;
     int await_int;
     bool wait_send;
     int def_ttl;
     bool custom_ttl;
     
     bool tfo;
-    unsigned int timeout;
-    int auto_level;
-    long cache_ttl;
+    unsigned int timeout, ptimeout;
+    int to_count_lim;
+    int to_bytes_lim;
+    char cache_pre;
+    int mode;
     bool ipv6;
     bool resolve;
     bool udp;
-    bool transparent;
-    bool http_connect;
+    bool delay_conn;
+    bool auto_reconnect;
     int max_open;
     int debug;
     size_t bfsize;
@@ -148,10 +164,13 @@ struct params {
     union sockaddr_u laddr;
     struct mphdr *mempool;
     
+    char **need_free;
+    int need_free_n;
+    
     const char *protect_path;
+    bool daemonize;
     const char *pid_file;
     int pid_fd;
-    const char *cache_file;
 };
 
 extern struct params params;

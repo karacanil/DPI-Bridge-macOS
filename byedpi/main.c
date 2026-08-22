@@ -3,6 +3,7 @@
 #include <string.h>
 #include <getopt.h>
 #include <limits.h>
+#include <ctype.h>
 
 #include "params.h"
 #include "proxy.h"
@@ -46,7 +47,6 @@ fake_udp = {
 struct params params = {
     .await_int = 10,
     
-    .cache_ttl = 100800,
     .ipv6 = 1,
     .resolve = 1,
     .udp = 1,
@@ -83,14 +83,14 @@ static const char help_text[] = {
     #ifdef TCP_FASTOPEN_CONNECT
     "    -F, --tfo                 Enable TCP Fast Open\n"
     #endif
-    "    -A, --auto <t,r,s,n>      Try desync params after this option\n"
-    "                              Detect: torst,redirect,ssl_err,none\n"
-    "    -L, --auto-mode <0-3>     Mode: 1 - post_resp, 2 - sort, 3 - 1+2\n"
-    "    -u, --cache-ttl <sec>     Lifetime of cached desync params for IP\n"
-    "    -y, --cache-dump <file|-> Dump cache to file or stdout\n"
     #ifdef TIMEOUT_SUPPORT
-    "    -T, --timeout <sec>       Timeout waiting for response, after which trigger auto\n"
+    "    -T, --timeout <s[:p:c:b]> Timeout waiting for response, after which trigger auto\n"
     #endif
+    "    -A, --auto <t,r,s,n,c>    Try desync params after this option\n"
+    "                              Detect: torst,redirect,ssl_err,none,conn\n"
+    "    -L, --auto-mode <s,o,n>   Mode: swop,onreconn,noreconn\n"
+    "    -y, --cache-file <path|-> Dump cache to file or stdout\n"
+    "    -u, --cache-ttl <sec>     Lifetime of cached desync params for IP\n"
     "    -K, --proto <t,h,u,i>     Protocol whitelist: tls,http,udp,ipv4\n"
     "    -H, --hosts <file|:str>   Hosts whitelist, filename or :string\n"
     "    -j, --ipset <file|:str>   IP whitelist\n"
@@ -133,7 +133,6 @@ const struct option options[] = {
     {"no-domain",     0, 0, 'N'},
     {"no-ipv6",       0, 0, 'X'},
     {"no-udp",        0, 0, 'U'},
-    {"http-connect",  0, 0, 'G'},
     {"help",          0, 0, 'h'},
     {"version",       0, 0, 'v'},
     {"ip",            1, 0, 'i'},
@@ -156,7 +155,7 @@ const struct option options[] = {
     {"timeout",       1, 0, 'T'},
     #endif
     {"copy",          1, 0, 'B'},
-    {"cache-dump",    1, 0, 'y'},
+    {"cache-file",    1, 0, 'y'},
     {"proto",         1, 0, 'K'},
     {"hosts",         1, 0, 'H'},
     {"pf",            1, 0, 'V'},
@@ -190,6 +189,8 @@ const struct option options[] = {
     #endif
     {"ipset",         1, 0, 'j'},
     {"connect-to",    1, 0, 'C'}, //
+    {"comment",       1, 0, '#'}, //
+    {"cache-merge",   1, 0, '/'},
     {0}
 };
     
@@ -309,12 +310,8 @@ static inline int lower_char(char *cl)
 }
 
 
-struct mphdr *parse_hosts(char *buffer, size_t size)
+int parse_hosts(struct mphdr *hdr, char *buffer, size_t size)
 {
-    struct mphdr *hdr = mem_pool(MF_STATIC, CMP_HOST);
-    if (!hdr) {
-        return 0;
-    }
     size_t num = 0;
     bool drop = 0;
     char *end = buffer + size;
@@ -333,8 +330,7 @@ struct mphdr *parse_hosts(char *buffer, size_t size)
         }
         if (!drop) {
             if (!mem_add(hdr, s, e - s, sizeof(struct elem))) {
-                mem_destroy(hdr);
-                return 0;
+                return -1;
             }
         } 
         else {
@@ -345,7 +341,7 @@ struct mphdr *parse_hosts(char *buffer, size_t size)
         s = e + 1;
     }
     LOG(LOG_S, "hosts count: %zd\n", hdr->count);
-    return hdr;
+    return 0;
 }
 
 
@@ -373,12 +369,8 @@ static int parse_ip(char *out, char *str, size_t size)
 }
 
 
-struct mphdr *parse_ipset(char *buffer, size_t size)
+int parse_ipset(struct mphdr *hdr, char *buffer, size_t size)
 {
-    struct mphdr *hdr = mem_pool(0, CMP_BITS);
-    if (!hdr) {
-        return 0;
-    }
     size_t num = 0;
     char *end = buffer + size;
     char *e = buffer, *s = buffer;
@@ -411,38 +403,95 @@ struct mphdr *parse_ipset(char *buffer, size_t size)
         struct elem *elem = mem_add(hdr, ip_raw, bits, sizeof(struct elem));
         if (!elem) {
             free(ip_raw);
-            mem_destroy(hdr);
-            return 0;
+            return -1;
         }
     }
     LOG(LOG_S, "ip count: %zd\n", hdr->count);
-    return hdr;
+    return 0;
 }
 
 
 int get_addr(const char *str, union sockaddr_u *addr)
 {
-    struct addrinfo hints = {0}, *res = 0;
+    uint16_t port = 0;
+    const char *s = str, *e = 0;
+    const char *end = 0, *p = str;
     
-    hints.ai_socktype = SOCK_STREAM;
-    hints.ai_family = AF_UNSPEC;
-    hints.ai_flags = AI_NUMERICHOST;
-    
-    if (getaddrinfo(str, 0, &hints, &res) || !res) {
+    if (*str == '[') {
+        e = strchr(str, ']');
+        if (!e) return -1;
+        s++; p = e + 1;
+    }
+    p = strchr(p, ':');
+    if (p && isdigit(p[1])) {
+        long val = strtol(p + 1, (char **)&end, 0);
+        if (val <= 0 || val > 0xffff || *end)
+            return -1;
+        else
+            port = htons(val);
+        if (!e) e = p;
+    }
+    if (!e) {
+        e = strchr(str, 0);
+    }
+    if (e != s) {
+        char str_ip[(e - s) + 1];
+        memcpy(str_ip, s, e - s);
+        str_ip[e - s] = 0;
+        
+        struct addrinfo hints = {0}, *res = 0;
+        
+        hints.ai_socktype = SOCK_STREAM;
+        hints.ai_family = AF_UNSPEC;
+        hints.ai_flags = AI_NUMERICHOST;
+        
+        if (getaddrinfo(str_ip, 0, &hints, &res) || !res) {
+            return -1;
+        }
+        
+        if (res->ai_addr->sa_family == AF_INET6)
+            addr->in6.sin6_addr = (
+                (struct sockaddr_in6 *)res->ai_addr)->sin6_addr;
+        else
+            addr->in.sin_addr = (
+                (struct sockaddr_in *)res->ai_addr)->sin_addr;
+                
+        addr->sa.sa_family = res->ai_addr->sa_family;
+        freeaddrinfo(res);
+    }
+    if (port) {
+        addr->in6.sin6_port = port;
+    }
+    return 0;
+}
+
+
+int get_addr_scheme(const char *str, union sockaddr_u *addr)
+{
+    const char *schemes[] = {
+        "socks4://", "socks5://", "socks://", "ss://", 
+        "http://", "sni://", "tcp://", 
+    #ifdef __linux__
+        "red://", 
+    #endif
+    0 };
+    const int scheme_int[] = {
+        MODE_SOCKS4, MODE_SOCKS5, MODE_SOCKS, MODE_SHADOWSOCKS, 
+        MODE_HTTP, MODE_RAWTLS, MODE_TCP, MODE_TRANSPARENT
+    };
+    int mode = 0;
+    for (size_t i = 0; schemes[i]; i++) {
+        int s_len = strlen(schemes[i]);
+        if (!strncmp(str, schemes[i], s_len)) {
+            mode = scheme_int[i];
+            str += s_len;
+            break;
+        }
+    }
+    if (get_addr(str, addr)) {
         return -1;
     }
-    
-    if (res->ai_addr->sa_family == AF_INET6)
-        addr->in6.sin6_addr = (
-            (struct sockaddr_in6 *)res->ai_addr)->sin6_addr;
-    else
-        addr->in.sin_addr = (
-            (struct sockaddr_in *)res->ai_addr)->sin_addr;
-    addr->sa.sa_family = res->ai_addr->sa_family;
-    
-    freeaddrinfo(res);
-    
-    return 0;
+    return mode;
 }
 
 
@@ -522,6 +571,9 @@ int parse_offset(struct part *part, const char *str)
                 part->flag |= OFFSET_START;
         }
     }
+    else if (*end) {
+        return -1;
+    }
     part->pos = val;
     return 0;
 }
@@ -554,8 +606,10 @@ static struct desync_params *add_group(struct desync_params *prev)
     }
     dp->id = params.dp_n;
     dp->bit = 1 << dp->id;
+    dp->str = "";
     
     params.dp_n++;
+    params.dp_full_mask |= dp->bit;
     return dp;
 }
 
@@ -563,29 +617,33 @@ static struct desync_params *add_group(struct desync_params *prev)
 #ifdef DAEMON
 int init_pid_file(const char *fname)
 {
-    params.pid_fd = open(fname, O_RDWR | O_CREAT, 0640);
-    if (params.pid_fd < 0) {
+    int pid_fd = open(fname, O_RDWR | O_CREAT, 0640);
+    if (pid_fd < 0) {
         return -1;
     }
     struct flock fl = { 
         .l_whence = SEEK_CUR,
         .l_type = F_WRLCK
     };
-    if (fcntl(params.pid_fd, F_SETLK, &fl) < 0) {
+    if (fcntl(pid_fd, F_SETLK, &fl) < 0) {
+        close(pid_fd);
         return -1;
     }
-    params.pid_file = fname;
     char pid_str[21];
     snprintf(pid_str, sizeof(pid_str), "%d", getpid());
     
-    write(params.pid_fd, pid_str, strlen(pid_str));
-    return 0;
+    if (write(pid_fd, pid_str, strlen(pid_str)) < 0) {
+        close(pid_fd);
+        return -1;
+    }
+    return pid_fd;
 }
 #endif
 
 
-void clear_params(void)
+void clear_params(char *line, char **argv)
 {
+
     #ifdef _WIN32
     WSACleanup();
     #endif
@@ -597,61 +655,39 @@ void clear_params(void)
         unlink(params.pid_file);
     }
     #endif
+    if (line) {
+        free(line);
+        free(argv);
+    }
     if (params.mempool) {
         mem_destroy(params.mempool);
         params.mempool = 0;
     }
+    for (int i = 0; i < params.need_free_n; i++) {
+        free(params.need_free[i]);
+    }
+    params.need_free_n = 0;
+    
     struct desync_params *dp = params.dp;
     while (dp) {
-        if (dp->parts != 0) {
-            free(dp->parts);
-            dp->parts = 0;
-        }
-        if (dp->tlsrec != 0) {
-            free(dp->tlsrec);
-            dp->tlsrec = 0;
-        }
-        if (dp->fake_data.data != 0) {
-            free(dp->fake_data.data);
-            dp->fake_data.data = 0;
-        }
-        if (dp->file_ptr != 0) {
-            free(dp->file_ptr);
-            dp->file_ptr = 0;
-        }
-        if (dp->hosts != 0) {
-            mem_destroy(dp->hosts);
-            dp->hosts = 0;
-        }
-        if (dp->ipset != 0) {
-            mem_destroy(dp->ipset);
-            dp->hosts = 0;
-        }
-        if (dp->fake_sni_list != 0) {
-            free(dp->fake_sni_list);
-            dp->fake_sni_list = 0;
-        }
+        free(dp->parts);
+        free(dp->tlsrec);
+        free(dp->fake_data.data);
+        free(dp->fake_sni_list);
+        mem_destroy(dp->hosts);
+        mem_destroy(dp->ipset);
+        
         struct desync_params *t = dp;
         dp = dp->next;
+        memset(t, 0, sizeof(*t));
         free(t);
     }
     params.dp = 0;
 }
 
 
-int main(int argc, char **argv) 
+int parse_args(int argc, char **argv) 
 {
-    #ifdef _WIN32
-    WSADATA wsa;
-    
-    if (WSAStartup(MAKEWORD(2, 2), &wsa)) {
-        uniperror("WSAStartup");
-        return -1;
-    }
-    if (register_winsvc(argc, argv)) {
-        return 0;
-    }
-    #endif
     int optc = sizeof(options)/sizeof(*options);
     for (int i = 0, e = optc; i < e; i++)
         optc += options[i].has_arg;
@@ -667,14 +703,12 @@ int main(int argc, char **argv)
         }
     }
     //
-    params.laddr.in.sin_port = htons(1080);
+    if (!params.laddr.in.sin_port) {
+        params.laddr.in.sin_port = htons(1080);
+    }
     if (!ipv6_support()) {
         params.baddr.sa.sa_family = AF_INET;
     }
-    
-    const char *pid_file = 0;
-    bool daemonize = 0;
-    
     int rez;
     int invalid = 0;
     
@@ -684,9 +718,14 @@ int main(int argc, char **argv)
     
     int curr_optind = 1;
     
+    params.mempool = mem_pool(MF_EXTRA, CMP_BITS);
+    if (!params.mempool) {
+        uniperror("mem_pool");
+        return -1;
+    }
+    
     struct desync_params *dp = add_group(0);
     if (!dp) {
-        clear_params();
         return -1;
     }
     params.dp = dp;
@@ -704,36 +743,34 @@ int main(int argc, char **argv)
         case 'U':
             params.udp = 0;
             break;
-        case 'G':
-            params.http_connect = 1;
-            break;
         #ifdef __linux__
         case 'E':
-            params.transparent = 1;
+            params.mode = MODE_TRANSPARENT;
             break;
         #endif
         
         #ifdef DAEMON
         case 'D':
-            daemonize = 1;
+            params.daemonize = 1;
             break;
             
         case 'w':
-            pid_file = optarg;
+            params.pid_file = optarg;
             break;
         #endif
         case 'h':
             printf(help_text);
-            clear_params();
-            return 0;
+            return 1;
         case 'v':
             printf("%s\n", VERSION);
-            clear_params();
-            return 0;
+            return 1;
         
-        case 'i':
-            if (get_addr(optarg, &params.laddr) < 0)
+        case 'i':;
+            int mode = get_addr_scheme(optarg, &params.laddr);
+            if (mode < 0)
                 invalid = 1;
+            else
+                params.mode |= mode;
             break;
             
         case 'p':
@@ -771,8 +808,19 @@ int main(int argc, char **argv)
                 invalid = 1;
             break;
             
-        case 'y': //
-            params.cache_file = optarg;
+        case 'y':
+            dp->cache_file = optarg;
+            if (!strcmp(dp->cache_file, "-")) {
+                break;
+            }
+            FILE *file = fopen(dp->cache_file, "r");
+            if (!file)
+                perror("fopen");
+            else {
+                load_cache(params.mempool, file, dp);
+                fclose(file);
+                LOG(LOG_S, "cache ip count: %zd\n", params.mempool->count);
+            }
             break;
             
         // desync options
@@ -785,21 +833,14 @@ int main(int argc, char **argv)
             end = optarg;
             while (end && !invalid) {
                 switch (*end) {
-                    case '0': 
+                    case 'o':
+                        dp->auto_level |= AUTO_ONRECONN;
                         break;
-                    case '1':
-                    case 'p': 
-                        params.auto_level |= AUTO_POST;
-                        break;
-                    case '2':
                     case 's': 
-                        params.auto_level |= AUTO_SORT;
+                        dp->auto_level |= AUTO_SORT;
                         break;
-                    case 'r':
-                        params.auto_level = 0;
-                        break;
-                    case '3':
-                        params.auto_level |= (AUTO_POST | AUTO_SORT);
+                    case 'n': 
+                        dp->auto_level |= AUTO_NORECONN;
                         break;
                     default:
                         invalid = 1;
@@ -820,7 +861,6 @@ int main(int argc, char **argv)
             }
             dp = add_group(dp);
             if (!dp) {
-                clear_params();
                 return -1;
             }
             end = optarg;
@@ -832,11 +872,20 @@ int main(int argc, char **argv)
                     case 'r': 
                         dp->detect |= DETECT_HTTP_LOCAT;
                         break;
-                    case 'a':
                     case 's': 
                         dp->detect |= DETECT_TLS_ERR;
                         break;
+                    case 'c':
+                        dp->detect |= DETECT_CONNECT;
+                        break;
                     case 'n': 
+                        break;
+                    case 'p':
+                        if ((end = strchr(end, '='))) {
+                            float f = strtof(end + 1, &end);
+                            if (*end) invalid = 1;
+                            else dp->prev->pri = (int )f;
+                        }
                         break;
                     default:
                         invalid = 1;
@@ -846,7 +895,7 @@ int main(int argc, char **argv)
                 if (end) end++;
             }
             if (dp->detect) {
-                params.auto_level |= AUTO_RECONN;
+                params.auto_reconnect = 1;
             }
             dp->_optind = optind;
             break;
@@ -873,25 +922,40 @@ int main(int argc, char **argv)
             }
             break;
         
+        case '#':
+            dp->str = optarg;
+            break;
+            
         case 'u':
             val = strtol(optarg, &end, 0);
             if (val <= 0 || *end) 
                 invalid = 1;
-            else
-                params.cache_ttl = val;
+            else {
+                dp->cache_ttl = val;
+            }
             break;
         
-        case 'T':;
-            #ifdef __linux__
-            float f = strtof(optarg, &end);
-            val = (long)(f * 1000);
-            #else
+        case '/':
             val = strtol(optarg, &end, 0);
-            #endif
-            if (val <= 0 || (unsigned long)val > UINT_MAX || *end)
+            if (val < 0 || val > 32 || *end) 
                 invalid = 1;
-            else
-                params.timeout = val;
+            else 
+                params.cache_pre = 32 - val;
+            break;
+            
+        case 'T':;
+            float f = strtof(optarg, &end);
+            params.timeout = (f * 1000);
+            
+            if (*end == ':') 
+                params.ptimeout = strtof(end + 1, &end) * 1000;
+            if (*end == ':') 
+                params.to_count_lim = strtof(end + 1, &end);
+            if (*end == ':')
+                params.to_bytes_lim = strtof(end + 1, &end);
+            if (*end)
+                invalid = 1;
+                
             break;
             
         case 'K':
@@ -919,37 +983,41 @@ int main(int argc, char **argv)
             }
             break;
             
-        case 'H':;
-            if (dp->file_ptr) {
-                continue;
-            }
-            dp->file_ptr = ftob(optarg, &dp->file_size);
-            if (!dp->file_ptr) {
-                uniperror("read/parse");
-                invalid = 1;
-                continue;
-            }
-            dp->hosts = parse_hosts(dp->file_ptr, dp->file_size);
-            if (!dp->hosts) {
-                uniperror("parse_hosts");
-                clear_params();
+        case 'H':
+            if (!dp->hosts && 
+                    !(dp->hosts = mem_pool(MF_STATIC, CMP_HOST))) {
                 return -1;
             }
-            break;
-            
-        case 'j':;
-            if (dp->ipset) {
-                continue;
-            }
-            ssize_t size;
+            ssize_t size = 0;
             char *data = ftob(optarg, &size);
             if (!data) {
                 uniperror("read/parse");
                 invalid = 1;
                 continue;
             }
-            dp->ipset = parse_ipset(data, size);
-            if (!dp->ipset) {
+            char **d = add((void *)&params.need_free, &params.need_free_n, sizeof(data));
+            if (!d) {
+                return -1;
+            }
+            *d = data;
+            if (parse_hosts(dp->hosts, data, size)) {
+                uniperror("parse_hosts");
+                return -1;
+            }
+            break;
+            
+        case 'j':
+            data = ftob(optarg, &size);
+            if (!data) {
+                uniperror("read/parse");
+                invalid = 1;
+                continue;
+            }
+            if (!dp->ipset 
+                    && !(dp->ipset = mem_pool(0, CMP_BITS))) {
+                return -1;
+            }
+            if (parse_ipset(dp->ipset, data, size)) {
                 uniperror("parse_ipset");
                 invalid = 1;
             }
@@ -965,7 +1033,6 @@ int main(int argc, char **argv)
             struct part *part = add((void *)&dp->parts,
                 &dp->parts_n, sizeof(struct part));
             if (!part) {
-                clear_params();
                 return -1;
             }
             if (parse_offset(part, optarg)) {
@@ -1087,7 +1154,6 @@ int main(int argc, char **argv)
             part = add((void *)&dp->tlsrec,
                 &dp->tlsrec_n, sizeof(struct part));
             if (!part) {
-                clear_params();
                 return -1;
             }
             if (parse_offset(part, optarg)
@@ -1174,12 +1240,15 @@ int main(int argc, char **argv)
             break;
             
         case 'C':
-            if (get_addr(optarg, &dp->custom_dst_addr) < 0)
+            dp->out_type = get_addr_scheme(optarg, &dp->out_addr);
+            if ((dp->out_type & OUT_SUPPORT) != dp->out_type
+                    || !dp->out_addr.in6.sin6_port) {
                 invalid = 1;
-            else
-                dp->custom_dst = 1;
+            }
+            if (!dp->out_type) dp->out_type = MODE_SOCKS5;
+            params.delay_conn = 1;
             break;
-
+        
         #ifdef __linux__
         case 'P':
             params.protect_path = optarg;
@@ -1189,24 +1258,20 @@ int main(int argc, char **argv)
             break;
             
         case '?':
-            clear_params();
             return -1;
             
         default: 
             printf("?: %c\n", rez);
-            clear_params();
             return -1;
         }
     }
     if (invalid) {
         fprintf(stderr, "invalid value: -%c %s\n", rez, optarg);
-        clear_params();
         return -1;
     }
     if (all_limited) {
         dp = add_group(dp);
         if (!dp) {
-            clear_params();
             return -1;
         }
     }
@@ -1216,46 +1281,114 @@ int main(int argc, char **argv)
     if (params.baddr.sa.sa_family != AF_INET6) {
         params.ipv6 = 0;
     }
-    if (!params.def_ttl) {
-        if ((params.def_ttl = get_default_ttl()) < 1) {
-            clear_params();
-            return -1;
+    if (!params.mode) params.mode |= (MODE_SOCKS4 | MODE_SOCKS5);
+    return 0;
+}
+
+
+void dump_all_cache(void)
+{
+    for (struct desync_params *dp = params.dp; dp; dp = dp->next) {
+        LOG(LOG_S, "group: %d (%s), triggered: %d, pri: %d\n", dp->id, dp->str, dp->fail_count, dp->pri);
+        if (dp->cache_file) {
+            if (!strcmp(dp->cache_file, "-")) {
+                dump_cache(params.mempool, stdout, dp);
+            }
+            else {
+                FILE *f = fopen(dp->cache_file, "w");
+                if (!f) {
+                    perror("fopen");
+                    return;
+                }
+                dump_cache(params.mempool, f, dp);
+                fclose(f);
+            }
         }
     }
-    params.mempool = mem_pool(MF_EXTRA, CMP_BYTES);
-    if (!params.mempool) {
-        uniperror("mem_pool");
-        clear_params();
-        return -1;
+}
+
+
+int init(void)
+{
+    if (!params.def_ttl) {
+        if ((params.def_ttl = get_default_ttl()) < 1) {
+            return -1;
+        }
     }
     srand((unsigned int)time(0));
     
     #ifdef DAEMON
-    if (daemonize && daemon(0, 0) < 0) {
-        clear_params();
+    if (params.daemonize && daemon(0, 0) < 0) {
         return -1;
     }
-    if (pid_file && init_pid_file(pid_file) < 0) {
-        clear_params();
+    if (params.pid_file 
+            && (params.pid_fd = init_pid_file(params.pid_file)) < 0) {
         return -1;
     }
     #endif
-    int status = run(&params.laddr);
+    return 0;
+}
+
+
+int main(int argc, char **argv) 
+{
+    #ifdef _WIN32
+    WSADATA wsa;
     
-    for (dp = params.dp; dp; dp = dp->next) {
-        LOG(LOG_S, "group: %d, triggered: %d, pri: %d\n", dp->id, dp->fail_count, dp->pri);
+    if (WSAStartup(MAKEWORD(2, 2), &wsa)) {
+        uniperror("WSAStartup");
+        return -1;
     }
-    if (params.cache_file) {
-        FILE *f;
-        if (!strcmp(params.cache_file, "-"))
-            f = stdout;
-        else 
-            f = fopen(params.cache_file, "w");
-        if (!f)
-            perror("fopen");
-        else
-            dump_cache(params.mempool, f);
+    if (register_winsvc(argc, argv)) {
+        return 0;
     }
-    clear_params();
-    return status;
+    #endif
+    
+    const char *local_port = getenv("SS_LOCAL_PORT");
+    if (local_port) {
+        params.laddr.in.sin_port = htons(atoi(local_port));
+        #ifdef __linux__
+        if (!access("protect_path", F_OK)) {
+            params.protect_path = "protect_path";
+        }
+        #endif
+        params.mode |= MODE_SHADOWSOCKS;
+    }
+    char *cmd_line = 0;
+    const char *env_options = getenv("SS_PLUGIN_OPTIONS");
+    
+    if (env_options) {
+        cmd_line = calloc(strlen(env_options) + 1, 1);
+        strcpy(cmd_line, env_options);
+        
+        argc = 1;
+        argv = calloc(64, sizeof(char *));
+        argv[0] = cmd_line;
+        
+        for (char *c = cmd_line; *c && argc < 64; c++) {
+            if (*c == ' ') {
+                *c = 0;
+                continue;
+            }
+            if (c == cmd_line || !c[-1]) {
+                argv[argc++] = c;
+            }
+        }
+    }
+    
+    int status = parse_args(argc, argv);
+    if (status) {
+        clear_params(cmd_line, argv);
+        return status - 1;
+    }
+    INIT_ADDR_STR(params.laddr);
+    LOG(LOG_S, "listen address: %s:%d\n", ADDR_STR, ntohs(params.laddr.in.sin_port));
+    
+    if (init() < 0 || run(&params.laddr) < 0) {
+        clear_params(cmd_line, argv);
+        return -1;
+    }
+    dump_all_cache();
+    clear_params(cmd_line, argv);
+    return 0;
 }

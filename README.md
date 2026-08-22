@@ -22,8 +22,8 @@ Geliştirici araçlarına veya Python'a ihtiyaç yoktur.
 
 1. GitHub sayfasındaki **Releases** bölümünden Mac'inin işlemcisine uygun `.zip`
    dosyasını indir:
-   - Intel işlemci: `DPI-Bridge-1.2.0-intel.zip` (kararlı)
-   - Apple M1/M2/M3/M4: `DPI-Bridge-1.2.0-apple-silicon-beta.1.zip`
+   - Intel işlemci: `DPI-Bridge-1.2.1-intel.zip` (kararlı)
+   - Apple M1/M2/M3/M4: `DPI-Bridge-1.2.1-apple-silicon-beta.1.zip`
      (test bekleyen beta)
 2. Zip'i aç ve `DPI-Bridge.app` dosyasını **Applications** klasörüne taşı.
 3. Uygulamayı bir kez açmayı dene ve uyarıda **Bitti / Done** seçeneğine bas.
@@ -165,6 +165,7 @@ Ayrıntılar: [PRIVACY.md](PRIVACY.md) ve [SECURITY.md](SECURITY.md).
 - [Proje yapısı](docs/PROJE-YAPISI.md)
 - [Yayın kontrol listesi](docs/RELEASE-CHECKLIST.md)
 - [Sürüm notları](docs/releases/)
+- [Üçüncü taraf bileşenleri](THIRD_PARTY.md)
 
 ## Kapsam
 

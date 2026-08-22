@@ -21,10 +21,7 @@ let package = Package(
         .executableTarget(
             name: "DPIBridge",
             dependencies: [],
-            path: "Sources/DPIBridge",
-            resources: [
-                .process("Resources")
-            ]
+            path: "Sources/DPIBridge"
         ),
         .executableTarget(
             name: "DiscordHTTPProxy",

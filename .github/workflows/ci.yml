@@ -1,0 +1,53 @@
+name: Build and security checks
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: "17 4 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build (${{ matrix.arch }})
+    runs-on: macos-14
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: [x86_64, arm64]
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Build application
+        run: TARGET_ARCH=${{ matrix.arch }} VERSION=1.2.1 BUILD_NUMBER=6 ./build.sh
+      - name: Run release preflight
+        run: EXPECTED_ARCH=${{ matrix.arch }} ./scripts/preflight-release.sh
+
+  codeql:
+    name: CodeQL (${{ matrix.language }})
+    runs-on: macos-14
+    permissions:
+      contents: read
+      security-events: write
+      packages: read
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [swift, c-cpp]
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@6d786de4d6f3531a740e445b53a42b622bbbace8 # v3
+        with:
+          languages: ${{ matrix.language }}
+          build-mode: manual
+      - name: Build analyzed code
+        run: TARGET_ARCH=x86_64 VERSION=1.2.1 BUILD_NUMBER=6 ./build.sh
+      - name: Analyze
+        uses: github/codeql-action/analyze@6d786de4d6f3531a740e445b53a42b622bbbace8 # v3

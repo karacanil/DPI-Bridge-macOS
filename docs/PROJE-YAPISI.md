@@ -7,13 +7,12 @@ Sources/
 ├── DPIBridge/
 │   ├── Models/                  Görünüm, dil tercihi ve yerelleştirme
 │   ├── Services/                ByeDPI ve macOS entegrasyonları
-│   ├── Views/                   SwiftUI ekranları
-│   └── Resources/bin/ciadpi     Universal ByeDPI binary
+│   └── Views/                   SwiftUI ekranları
 └── DiscordHTTPProxy/main.c      Discord güncelleyicisi HTTP→SOCKS köprüsü
 
 docs/                            Kullanım, teknik açıklama ve release belgeleri
 scripts/                         Geliştirme, doğrulama ve geri alma araçları
-byedpi/                          Upstream ByeDPI kaynak kodu ve lisansı
+byedpi/                          Sabitlenmiş upstream ByeDPI kaynak snapshot'ı
 AppIcon.icns                     Uygulama paketinde kullanılan macOS ikonu
 AppIcon.iconset/                 İkonun düzenlenebilir kaynak boyutları
 DPI-Bridge-Cloudflare-Encrypted-DNS.mobileconfig
@@ -49,8 +48,9 @@ isteyebileceği Input Monitoring izninin DPI Bridge'e atfedilmesini önler.
 
 `build.sh` varsayılan olarak iki macOS mimarisini içeren universal release
 derlemesi yapar. `TARGET_ARCH=x86_64` veya `TARGET_ARCH=arm64` ile tek mimarili
-paket de üretilebilir. Script uygun `ciadpi` mimarisini ve DNS profilini uygulama
-paketine kopyalar, ardından yerel test için ad-hoc imza uygular.
+paket de üretilebilir. Script `ciadpi` yardımcısını sabitlenmiş kaynak koddan
+yeniden üretir, binary'lerdeki yerel debug yollarını temizler ve DNS profilini
+uygulama paketine kopyalar. Ardından yerel test için ad-hoc imza uygular.
 
 Halka açık dağıtımda ad-hoc imza yeterli değildir. Developer ID imzası ve Apple
 notarizasyonu için [RELEASE-CHECKLIST.md](RELEASE-CHECKLIST.md) kullanılmalıdır.

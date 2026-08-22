@@ -194,7 +194,7 @@ final class ByeDPIService: ObservableObject {
     }
 
     private func ciadpiCandidates() -> [String] {
-        resourcePath("bin/ciadpi") + developmentPaths("Sources/DPIBridge/Resources/bin/ciadpi")
+        resourcePath("bin/ciadpi") + developmentPaths(".build/ciadpi/ciadpi")
     }
 
     private func proxyBridgeCandidates() -> [String] {

@@ -12,7 +12,7 @@ struct AboutView: View {
                         .frame(width: 100, height: 100)
                         .foregroundColor(.accentColor)
 
-                    Text("SplitWire-Turkey")
+                    Text("DPI-Bridge")
                         .font(.largeTitle.bold())
 
                     Text("\(appState.text("header.edition")) \(version)")
@@ -63,7 +63,7 @@ struct AboutView: View {
                 }
 
                 Button {
-                    if let url = URL(string: "https://github.com/karacanil/SplitWire-Turkey-macOS") {
+                    if let url = URL(string: "https://github.com/karacanil/DPI-Bridge-macOS") {
                         NSWorkspace.shared.open(url)
                     }
                 } label: {

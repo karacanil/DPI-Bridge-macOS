@@ -4,7 +4,7 @@
 
 ```text
 Sources/
-├── SplitWireTurkey/
+├── DPIBridge/
 │   ├── Models/                  Görünüm, dil tercihi ve yerelleştirme
 │   ├── Services/                ByeDPI ve macOS entegrasyonları
 │   ├── Views/                   SwiftUI ekranları
@@ -16,7 +16,7 @@ scripts/                         Geliştirme, doğrulama ve geri alma araçları
 byedpi/                          Upstream ByeDPI kaynak kodu ve lisansı
 AppIcon.icns                     Uygulama paketinde kullanılan macOS ikonu
 AppIcon.iconset/                 İkonun düzenlenebilir kaynak boyutları
-SplitWire-Cloudflare-Encrypted-DNS.mobileconfig
+DPI-Bridge-Cloudflare-Encrypted-DNS.mobileconfig
                                  İsteğe bağlı DNS over HTTPS profili
 ```
 
@@ -35,16 +35,16 @@ başlatma scripti açıkça `--ip 127.0.0.1` parametresini kullanır.
 Yardımcı proxy yalnızca localhost'a bind olur, yalnızca Discord alan adlarına ve
 `443` portuna izin verir. TLS trafiğinin içeriğini açmaz veya kaydetmez.
 
-Discord doğrudan SplitWire'ın child process'i olarak değil, `/usr/bin/open`
+Discord doğrudan DPI Bridge'in child process'i olarak değil, `/usr/bin/open`
 üzerinden macOS Launch Services ile başlatılır. Proxy ortam değişkenleri
 `open --env` ile Discord'a aktarılır. Bu ayrım Discord'un global kısayollar için
-isteyebileceği Input Monitoring izninin SplitWire'a atfedilmesini önler.
+isteyebileceği Input Monitoring izninin DPI Bridge'e atfedilmesini önler.
 
 ## Derleme
 
 `Package.swift` iki executable üretir:
 
-- `SplitWire-Turkey`
+- `DPI-Bridge`
 - `discord-http-proxy`
 
 `build.sh` varsayılan olarak iki macOS mimarisini içeren universal release

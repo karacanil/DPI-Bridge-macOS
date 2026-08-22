@@ -2,14 +2,14 @@
 import PackageDescription
 
 let package = Package(
-    name: "SplitWire-Turkey-macOS",
+    name: "DPI-Bridge-macOS",
     platforms: [
         .macOS(.v13)
     ],
     products: [
         .executable(
-            name: "SplitWire-Turkey",
-            targets: ["SplitWireTurkey"]
+            name: "DPI-Bridge",
+            targets: ["DPIBridge"]
         ),
         .executable(
             name: "discord-http-proxy",
@@ -19,9 +19,9 @@ let package = Package(
     dependencies: [],
     targets: [
         .executableTarget(
-            name: "SplitWireTurkey",
+            name: "DPIBridge",
             dependencies: [],
-            path: "Sources/SplitWireTurkey",
+            path: "Sources/DPIBridge",
             resources: [
                 .process("Resources")
             ]

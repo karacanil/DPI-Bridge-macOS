@@ -33,7 +33,7 @@ struct HeaderView: View {
     var body: some View {
         HStack {
             VStack(alignment: .leading, spacing: 4) {
-                Text("SplitWire-Turkey")
+                Text("DPI-Bridge")
                     .font(.title)
                     .fontWeight(.bold)
                 Text(appState.text("header.edition"))

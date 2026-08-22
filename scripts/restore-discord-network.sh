@@ -22,7 +22,7 @@ stop_matching_listener() {
                 kill -9 "$pid" 2>/dev/null || true
             fi
         else
-            print "Uyarı: $port portundaki $pid süreci SplitWire'a ait görünmüyor; kapatılmadı."
+            print "Uyarı: $port portundaki $pid süreci DPI Bridge'e ait görünmüyor; kapatılmadı."
         fi
     done
 }
@@ -48,7 +48,7 @@ if [[ -f "$SETTINGS_PATH" ]]; then
             )) throw new Error("settings.json yazılamadı");
         }
     ' "$SETTINGS_PATH"
-    print "Discord settings.json içindeki eski SplitWire güncelleme anahtarları kaldırıldı."
+    print "Discord settings.json içindeki eski güncelleme anahtarları kaldırıldı."
 fi
 
 SOCKS_STATUS=$(networksetup -getsocksfirewallproxy "Wi-Fi" 2>/dev/null || true)
@@ -57,18 +57,18 @@ if [[ "$SOCKS_STATUS" == *"Enabled: Yes"* &&
       "$SOCKS_STATUS" == *"Port: 1080"* ]]; then
     osascript -e \
         'do shell script "networksetup -setsocksfirewallproxystate '\''Wi-Fi'\'' off" with administrator privileges'
-    print "SplitWire'a ait Wi-Fi sistem SOCKS proxy ayarı kapatıldı."
+    print "DPI Bridge'e ait Wi-Fi sistem SOCKS proxy ayarı kapatıldı."
 else
-    print "Wi-Fi sistem SOCKS ayarı değiştirilmedi (SplitWire 127.0.0.1:1080 ayarı etkin değil)."
+    print "Wi-Fi sistem SOCKS ayarı değiştirilmedi (DPI Bridge 127.0.0.1:1080 ayarı etkin değil)."
 fi
 
 if profiles list -type configuration 2>&1 | grep -q "com.splitwire.cloudflare-doh"; then
     open "x-apple.systempreferences:com.apple.preferences.configurationprofiles"
     print ""
     print "Son kullanıcı onayı gerekiyor:"
-    print "Aygıt Yönetimi'nde 'SplitWire Cloudflare Encrypted DNS' profilini seçip eksi (−) ile kaldır."
+    print "Aygıt Yönetimi'nde 'DPI Bridge Cloudflare Encrypted DNS' profilini seçip eksi (−) ile kaldır."
 else
-    print "SplitWire Cloudflare DNS profili kurulu görünmüyor."
+    print "DPI Bridge Cloudflare DNS profili kurulu görünmüyor."
 fi
 
 print ""

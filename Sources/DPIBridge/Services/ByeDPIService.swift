@@ -194,7 +194,7 @@ final class ByeDPIService: ObservableObject {
     }
 
     private func ciadpiCandidates() -> [String] {
-        resourcePath("bin/ciadpi") + developmentPaths("Sources/SplitWireTurkey/Resources/bin/ciadpi")
+        resourcePath("bin/ciadpi") + developmentPaths("Sources/DPIBridge/Resources/bin/ciadpi")
     }
 
     private func proxyBridgeCandidates() -> [String] {
@@ -204,8 +204,8 @@ final class ByeDPIService: ObservableObject {
     }
 
     private func profileCandidates() -> [String] {
-        resourcePath("profiles/SplitWire-Cloudflare-Encrypted-DNS.mobileconfig")
-            + developmentPaths("SplitWire-Cloudflare-Encrypted-DNS.mobileconfig")
+        resourcePath("profiles/DPI-Bridge-Cloudflare-Encrypted-DNS.mobileconfig")
+            + developmentPaths("DPI-Bridge-Cloudflare-Encrypted-DNS.mobileconfig")
     }
 
     private func resourcePath(_ relativePath: String) -> [String] {
@@ -222,7 +222,7 @@ final class ByeDPIService: ObservableObject {
     }
 
     private func serviceError(_ message: String) -> NSError {
-        NSError(domain: "SplitWire", code: 1, userInfo: [NSLocalizedDescriptionKey: message])
+        NSError(domain: "DPIBridge", code: 1, userInfo: [NSLocalizedDescriptionKey: message])
     }
 
     private func showAlert(titleKey: String, message: String) {

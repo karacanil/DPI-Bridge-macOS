@@ -1,7 +1,7 @@
 import SwiftUI
 
 @main
-struct SplitWireTurkeyApp: App {
+struct DPIBridgeApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     @StateObject private var appState = AppState()
 
@@ -17,11 +17,11 @@ struct SplitWireTurkeyApp: App {
                 Button(appState.text("about.menu")) {
                     NSApplication.shared.orderFrontStandardAboutPanel(
                         options: [
-                            NSApplication.AboutPanelOptionKey.applicationName: "SplitWire-Turkey",
+                            NSApplication.AboutPanelOptionKey.applicationName: "DPI-Bridge",
                             NSApplication.AboutPanelOptionKey.applicationVersion:
                                 Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "dev",
                             NSApplication.AboutPanelOptionKey.version: "macOS Edition",
-                            NSApplication.AboutPanelOptionKey(rawValue: "Copyright"): "SplitWire Turkey contributors — MIT License"
+                            NSApplication.AboutPanelOptionKey(rawValue: "Copyright"): "DPI Bridge contributors — MIT License"
                         ]
                     )
                 }

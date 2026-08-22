@@ -30,8 +30,8 @@ enum L10n {
 
         "connect.title": [.turkish: "Discord'a Bağlan", .english: "Connect to Discord"],
         "connect.description": [
-            .turkish: "SplitWire, Discord'u yalnızca bu Mac'te çalışan yerel proxy'ler üzerinden başlatır.",
-            .english: "SplitWire launches Discord through local proxies that run only on this Mac."
+            .turkish: "DPI Bridge, Discord'u yalnızca bu Mac'te çalışan yerel proxy'ler üzerinden başlatır.",
+            .english: "DPI Bridge launches Discord through local proxies that run only on this Mac."
         ],
         "setup.title": [.turkish: "İlk kullanım", .english: "First-time setup"],
         "setup.description": [
@@ -87,11 +87,11 @@ enum L10n {
         ],
         "alert.ok": [.turkish: "Tamam", .english: "OK"],
 
-        "about.menu": [.turkish: "SplitWire-Turkey Hakkında", .english: "About SplitWire-Turkey"],
+        "about.menu": [.turkish: "DPI-Bridge Hakkında", .english: "About DPI-Bridge"],
         "about.section": [.turkish: "Hakkında", .english: "About"],
         "about.description": [
-            .turkish: "SplitWire-Turkey, macOS üzerinde Discord bağlantısını hazırlayan açık kaynaklı bir yardımcı uygulamadır.",
-            .english: "SplitWire-Turkey is an open-source utility that prepares Discord connectivity on macOS."
+            .turkish: "DPI-Bridge, macOS üzerinde Discord bağlantısını hazırlayan açık kaynaklı bir yardımcı uygulamadır.",
+            .english: "DPI-Bridge is an open-source utility that prepares Discord connectivity on macOS."
         ],
         "about.security": [
             .turkish: "ByeDPI'ı ve Discord güncelleyici köprüsünü yalnızca localhost üzerinde çalıştırır; şifreli DNS profilini kullanıcı onayıyla açar.",
@@ -107,7 +107,7 @@ enum L10n {
             .english: "This app uses the ByeDPI / ciadpi component. Third-party licenses are preserved in the source repository."
         ],
         "about.license": [.turkish: "Lisans", .english: "License"],
-        "about.contributors": [.turkish: "SplitWire Turkey katkıcıları", .english: "SplitWire Turkey contributors"],
+        "about.contributors": [.turkish: "DPI Bridge katkıcıları", .english: "DPI Bridge contributors"],
         "about.repository": [.turkish: "Proje Reposu", .english: "Project Repository"]
     ]
 

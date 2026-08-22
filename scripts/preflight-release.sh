@@ -35,10 +35,10 @@ for script in scripts/launch-discord.sh scripts/restore-discord-network.sh; do
         fail "$script sözdizimi geçersiz."
     fi
 done
-plutil -lint SplitWire-Cloudflare-Encrypted-DNS.mobileconfig >/dev/null
+plutil -lint DPI-Bridge-Cloudflare-Encrypted-DNS.mobileconfig >/dev/null
 
 print "[4/6] Universal ciadpi doğrulanıyor..."
-ARCHS=$(lipo -archs Sources/SplitWireTurkey/Resources/bin/ciadpi)
+ARCHS=$(lipo -archs Sources/DPIBridge/Resources/bin/ciadpi)
 [[ "$ARCHS" == *"x86_64"* && "$ARCHS" == *"arm64"* ]] \
     || fail "ciadpi universal değil: $ARCHS"
 
@@ -47,23 +47,23 @@ rg -q 'inet_pton\(AF_INET, "127\.0\.0\.1"' Sources/DiscordHTTPProxy/main.c \
     || fail "Proxy localhost'a sabitlenmemiş."
 rg -q 'parsed_port != 443' Sources/DiscordHTTPProxy/main.c \
     || fail "Proxy HTTPS portuyla sınırlandırılmamış."
-rg -q '"--ip", "127\.0\.0\.1"' Sources/SplitWireTurkey/Services/ByeDPIService.swift \
+rg -q '"--ip", "127\.0\.0\.1"' Sources/DPIBridge/Services/ByeDPIService.swift \
     || fail "Uygulama ByeDPI'ı localhost'a sabitlemiyor."
 rg -q -- '--ip 127\.0\.0\.1' scripts/launch-discord.sh \
     || fail "Başlatma scripti ByeDPI'ı localhost'a sabitlemiyor."
-rg -q 'fileURLWithPath: "/usr/bin/open"' Sources/SplitWireTurkey/Services/ByeDPIService.swift \
+rg -q 'fileURLWithPath: "/usr/bin/open"' Sources/DPIBridge/Services/ByeDPIService.swift \
     || fail "Discord Launch Services üzerinden başlatılmıyor."
-rg -q '"--env"' Sources/SplitWireTurkey/Services/ByeDPIService.swift \
+rg -q '"--env"' Sources/DPIBridge/Services/ByeDPIService.swift \
     || fail "Discord proxy ortamı Launch Services'e aktarılmıyor."
 
 print "[6/6] Git diff biçimi kontrol ediliyor..."
 git diff --check
 
-if [[ -d SplitWire-Turkey.app ]]; then
+if [[ -d DPI-Bridge.app ]]; then
     for executable in \
-        SplitWire-Turkey.app/Contents/MacOS/SplitWire-Turkey \
-        SplitWire-Turkey.app/Contents/Resources/bin/ciadpi \
-        SplitWire-Turkey.app/Contents/Resources/bin/discord-http-proxy; do
+        DPI-Bridge.app/Contents/MacOS/DPI-Bridge \
+        DPI-Bridge.app/Contents/Resources/bin/ciadpi \
+        DPI-Bridge.app/Contents/Resources/bin/discord-http-proxy; do
         ARCHS=$(lipo -archs "$executable")
         if [[ "$EXPECTED_ARCH" == "universal" ]]; then
             [[ "$ARCHS" == *"x86_64"* && "$ARCHS" == *"arm64"* ]] \
@@ -73,7 +73,7 @@ if [[ -d SplitWire-Turkey.app ]]; then
                 || fail "$executable beklenen $EXPECTED_ARCH mimarisinde değil: $ARCHS"
         fi
     done
-    codesign --verify --deep --strict SplitWire-Turkey.app \
+    codesign --verify --deep --strict DPI-Bridge.app \
         || fail "Uygulama imzası geçersiz."
 fi
 

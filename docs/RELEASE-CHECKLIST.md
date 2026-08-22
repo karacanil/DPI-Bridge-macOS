@@ -26,19 +26,19 @@ sağla; repoya yazma):
 
 ```bash
 codesign --force --deep --options runtime \
-  --sign "Developer ID Application: …" SplitWire-Turkey.app
+  --sign "Developer ID Application: …" DPI-Bridge.app
 
-ditto -c -k --keepParent SplitWire-Turkey.app SplitWire-Turkey.zip
-xcrun notarytool submit SplitWire-Turkey.zip \
+ditto -c -k --keepParent DPI-Bridge.app DPI-Bridge.zip
+xcrun notarytool submit DPI-Bridge.zip \
   --keychain-profile "NOTARY_PROFILE" --wait
-xcrun stapler staple SplitWire-Turkey.app
-shasum -a 256 SplitWire-Turkey.zip
+xcrun stapler staple DPI-Bridge.app
+shasum -a 256 DPI-Bridge.zip
 ```
 
 ## Temiz Mac testi
 
-- [ ] Daha önce SplitWire kurulmamış Intel Mac'te test edildi.
-- [ ] Daha önce SplitWire kurulmamış Apple Silicon Mac'te test edildi.
+- [ ] Daha önce DPI Bridge kurulmamış Intel Mac'te test edildi.
+- [ ] Daha önce DPI Bridge kurulmamış Apple Silicon Mac'te test edildi.
 - [ ] Kullanıcı geliştirici aracı veya Python kurmadan uygulamayı açabildi.
 - [ ] DNS profili uygulama içinden açıldı ve kaldırılabildi.
 - [ ] Discord ilk kurulum/güncelleme ekranını geçti.

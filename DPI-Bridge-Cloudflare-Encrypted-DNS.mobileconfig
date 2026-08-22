@@ -36,11 +36,11 @@
     <key>PayloadDescription</key>
     <string>Discord alan adlarını şifreli Cloudflare DNS ile çözümler.</string>
     <key>PayloadDisplayName</key>
-    <string>SplitWire Cloudflare Encrypted DNS</string>
+    <string>DPI Bridge Cloudflare Encrypted DNS</string>
     <key>PayloadIdentifier</key>
     <string>com.splitwire.cloudflare-doh</string>
     <key>PayloadOrganization</key>
-    <string>SplitWire Turkey</string>
+    <string>DPI Bridge</string>
     <key>PayloadRemovalDisallowed</key>
     <false/>
     <key>PayloadType</key>

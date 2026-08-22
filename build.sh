@@ -1,12 +1,12 @@
 #!/bin/bash
 
-# SplitWire-Turkey macOS Build Script
+# DPI Bridge macOS Build Script
 # This script builds the macOS application
 
 set -euo pipefail
 
-APP_NAME="SplitWire-Turkey"
-VERSION=${VERSION:-1.1.0}
+APP_NAME="DPI-Bridge"
+VERSION=${VERSION:-1.2.0}
 BUILD_NUMBER=${BUILD_NUMBER:-1}
 TARGET_ARCH=${TARGET_ARCH:-universal}
 
@@ -15,11 +15,11 @@ if [[ "${TARGET_ARCH}" != "universal" && "${TARGET_ARCH}" != "x86_64" && "${TARG
     exit 1
 fi
 
-echo "🔨 Building SplitWire-Turkey for macOS..."
+echo "🔨 Building DPI Bridge for macOS..."
 
 # Clean previous builds
 echo "🧹 Cleaning previous builds..."
-rm -rf SplitWire-Turkey.app
+rm -rf DPI-Bridge.app
 if [ "${SKIP_BUILD:-0}" != "1" ]; then
     rm -rf .build
 fi
@@ -67,16 +67,16 @@ cp "${OUTPUT_BIN_DIR}/${APP_NAME}" "${MACOS}/"
 # Copy bundled helper binaries
 echo "📋 Copying helper binaries..."
 mkdir -p "${RESOURCES}/bin"
-if [ -f "Sources/SplitWireTurkey/Resources/bin/ciadpi" ]; then
+if [ -f "Sources/DPIBridge/Resources/bin/ciadpi" ]; then
     if [[ "${TARGET_ARCH}" == "universal" ]]; then
-        cp "Sources/SplitWireTurkey/Resources/bin/ciadpi" "${RESOURCES}/bin/"
+        cp "Sources/DPIBridge/Resources/bin/ciadpi" "${RESOURCES}/bin/"
     else
-        lipo -thin "${TARGET_ARCH}" "Sources/SplitWireTurkey/Resources/bin/ciadpi" -output "${RESOURCES}/bin/ciadpi"
+        lipo -thin "${TARGET_ARCH}" "Sources/DPIBridge/Resources/bin/ciadpi" -output "${RESOURCES}/bin/ciadpi"
     fi
     chmod +x "${RESOURCES}/bin/ciadpi"
     echo "  ✓ ByeDPI (ciadpi) copied"
 else
-    echo "  ✗ Sources/SplitWireTurkey/Resources/bin/ciadpi not found"
+    echo "  ✗ Sources/DPIBridge/Resources/bin/ciadpi not found"
     exit 1
 fi
 
@@ -85,7 +85,7 @@ chmod +x "${RESOURCES}/bin/discord-http-proxy"
 echo "  ✓ Discord updater proxy copied"
 
 mkdir -p "${RESOURCES}/profiles"
-cp "SplitWire-Cloudflare-Encrypted-DNS.mobileconfig" "${RESOURCES}/profiles/"
+cp "DPI-Bridge-Cloudflare-Encrypted-DNS.mobileconfig" "${RESOURCES}/profiles/"
 echo "  ✓ Encrypted DNS profile copied"
 
 # Copy App Icon
@@ -129,7 +129,7 @@ cat > "${CONTENTS}/Info.plist" << EOF
     <key>NSPrincipalClass</key>
     <string>NSApplication</string>
     <key>NSHumanReadableCopyright</key>
-    <string>SplitWire Turkey contributors. MIT License.</string>
+    <string>DPI Bridge contributors. MIT License.</string>
 </dict>
 </plist>
 EOF

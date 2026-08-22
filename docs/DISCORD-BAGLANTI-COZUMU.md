@@ -1,4 +1,4 @@
-# SplitWire ile Discord bağlantı çözümü
+# DPI Bridge ile Discord bağlantı çözümü
 
 Bu belge, macOS üzerinde Discord'un **Checking for Updates** ekranında kalmasının
 nedenini, uygulanan çözümü ve çözümün temiz bir sistemde nasıl yeniden
@@ -29,7 +29,7 @@ Alan adı çözümleme ──DNS over HTTPS──▶ Cloudflare
 
 ## Repodaki parçalar
 
-- `SplitWire-Cloudflare-Encrypted-DNS.mobileconfig`: macOS'a Cloudflare DNS over
+- `DPI-Bridge-Cloudflare-Encrypted-DNS.mobileconfig`: macOS'a Cloudflare DNS over
   HTTPS yapılandırması ekler. Profil imzasızdır, kullanıcı tarafından
   kurulabilir ve kaldırılabilir.
 - `Sources/DiscordHTTPProxy/main.c`: yalnızca `127.0.0.1:1081` üzerinde
@@ -44,7 +44,7 @@ Alan adı çözümleme ──DNS over HTTPS──▶ Cloudflare
 
 - macOS 13 veya daha yeni sürüm
 - `/Applications/Discord.app` altında kurulu Discord
-- Derlenmiş `SplitWire-Turkey.app`; script ile çalışılacaksa ayrıca repoda
+- Derlenmiş `DPI-Bridge.app`; script ile çalışılacaksa ayrıca repoda
   derlenmiş `discord-http-proxy` çıktısı
 - Profil kurulumunu onaylayabilecek bir macOS kullanıcı hesabı
 
@@ -52,11 +52,11 @@ Alan adı çözümleme ──DNS over HTTPS──▶ Cloudflare
 
 ### 1. Şifreli DNS profilini kur
 
-Finder'da `SplitWire-Cloudflare-Encrypted-DNS.mobileconfig` dosyasını aç.
+Finder'da `DPI-Bridge-Cloudflare-Encrypted-DNS.mobileconfig` dosyasını aç.
 Ardından:
 
 1. **Sistem Ayarları → Genel → Aygıt Yönetimi** bölümüne git.
-2. **SplitWire Cloudflare Encrypted DNS** profilini seç.
+2. **DPI Bridge Cloudflare Encrypted DNS** profilini seç.
 3. **Yükle** düğmesine bas ve macOS parolanla onayla.
 
 Profil sayfası doğrudan açılmazsa Terminal'de şu komut kullanılabilir:
@@ -104,7 +104,7 @@ Otomatik script kullanılmadan aynı akış aşağıdaki komutlarla kurulabilir.
 ByeDPI:
 
 ```bash
-./SplitWire-Turkey.app/Contents/Resources/bin/ciadpi \
+./DPI-Bridge.app/Contents/Resources/bin/ciadpi \
   --ip 127.0.0.1 \
   --disorder 1 --auto=torst --tlsrec 1+s
 ```
@@ -112,7 +112,7 @@ ByeDPI:
 Ayrı bir Terminal penceresinde derlenmiş HTTP→SOCKS köprüsü:
 
 ```bash
-./SplitWire-Turkey.app/Contents/Resources/bin/discord-http-proxy
+./DPI-Bridge.app/Contents/Resources/bin/discord-http-proxy
 ```
 
 Bağlantı testi:
@@ -202,7 +202,7 @@ Geri yükleme scripti:
 Şifreli DNS profilini kaldırmak için:
 
 1. **Sistem Ayarları → Genel → Aygıt Yönetimi** bölümünü aç.
-2. **SplitWire Cloudflare Encrypted DNS** profilini seç.
+2. **DPI Bridge Cloudflare Encrypted DNS** profilini seç.
 3. Eksi (`−`) düğmesiyle profili kaldır.
 
 macOS profil kaldırma işlemi için kullanıcı onayı istediğinden bu son tıklama
@@ -218,7 +218,7 @@ sudo killall -HUP mDNSResponder
 Tam geri dönüşü doğrula:
 
 ```bash
-# SplitWire profili listelenmemeli
+# DPI Bridge profili listelenmemeli
 profiles list -type configuration
 
 # İki yardımcı port da boş olmalı
@@ -257,7 +257,7 @@ sudo killall -HUP mDNSResponder
 
 ```bash
 lsof -nP -iTCP:1080 -sTCP:LISTEN
-tail -100 /tmp/splitwire-ciadpi.log
+tail -100 /tmp/dpi-bridge-ciadpi.log
 ```
 
 Portu başka bir program kullanıyorsa önce o programı güvenli biçimde kapat.
@@ -268,7 +268,7 @@ DNS çözümlemesini ve köprüyü kontrol et:
 
 ```bash
 dscacheutil -q host -a name stable.dl2.discordapp.net
-tail -100 /tmp/splitwire-discord-http-proxy.log
+tail -100 /tmp/dpi-bridge-discord-http-proxy.log
 ```
 
 Ardından `scripts/launch-discord.sh` komutunu tekrar çalıştır.

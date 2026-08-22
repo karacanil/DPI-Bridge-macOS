@@ -4,13 +4,13 @@ set -eu
 
 SCRIPT_DIR=${0:A:h}
 REPO_ROOT=${SCRIPT_DIR:h}
-PROFILE_PATH="$REPO_ROOT/SplitWire-Cloudflare-Encrypted-DNS.mobileconfig"
+PROFILE_PATH="$REPO_ROOT/DPI-Bridge-Cloudflare-Encrypted-DNS.mobileconfig"
 DISCORD_BIN="/Applications/Discord.app/Contents/MacOS/Discord"
-CIADPI_PID_FILE="/tmp/splitwire-ciadpi.pid"
-BRIDGE_PID_FILE="/tmp/splitwire-discord-http-proxy.pid"
-CIADPI_LOG="/tmp/splitwire-ciadpi.log"
-BRIDGE_LOG="/tmp/splitwire-discord-http-proxy.log"
-DISCORD_LOG="/tmp/splitwire-discord-launch.log"
+CIADPI_PID_FILE="/tmp/dpi-bridge-ciadpi.pid"
+BRIDGE_PID_FILE="/tmp/dpi-bridge-discord-http-proxy.pid"
+CIADPI_LOG="/tmp/dpi-bridge-ciadpi.log"
+BRIDGE_LOG="/tmp/dpi-bridge-discord-http-proxy.log"
+DISCORD_LOG="/tmp/dpi-bridge-discord-launch.log"
 
 die() {
     print -u2 "Hata: $*"
@@ -23,8 +23,8 @@ port_is_listening() {
 
 find_ciadpi() {
     local candidates=(
-        "$REPO_ROOT/SplitWire-Turkey.app/Contents/Resources/bin/ciadpi"
-        "$REPO_ROOT/Sources/SplitWireTurkey/Resources/bin/ciadpi"
+        "$REPO_ROOT/DPI-Bridge.app/Contents/Resources/bin/ciadpi"
+        "$REPO_ROOT/Sources/DPIBridge/Resources/bin/ciadpi"
         "$REPO_ROOT/byedpi/ciadpi"
     )
     local candidate
@@ -39,7 +39,7 @@ find_ciadpi() {
 
 find_proxy_bridge() {
     local candidates=(
-        "$REPO_ROOT/SplitWire-Turkey.app/Contents/Resources/bin/discord-http-proxy"
+        "$REPO_ROOT/DPI-Bridge.app/Contents/Resources/bin/discord-http-proxy"
         "$REPO_ROOT/.build/universal/release/discord-http-proxy"
         "$REPO_ROOT/.build/release/discord-http-proxy"
         "$REPO_ROOT/.build/debug/discord-http-proxy"
@@ -80,7 +80,9 @@ stop_owned_process() {
 if [[ "${1:-}" == "--stop" ]]; then
     stop_owned_process "$BRIDGE_PID_FILE" "discord-http-proxy"
     stop_owned_process "$CIADPI_PID_FILE" "ciadpi"
-    print "SplitWire yardımcı süreçleri durduruldu."
+    stop_owned_process "/tmp/splitwire-discord-http-proxy.pid" "discord-http-proxy"
+    stop_owned_process "/tmp/splitwire-ciadpi.pid" "ciadpi"
+    print "DPI Bridge yardımcı süreçleri durduruldu."
     exit 0
 fi
 

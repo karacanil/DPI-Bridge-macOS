@@ -1,6 +1,6 @@
 # Gizlilik
 
-SplitWire Turkey yerel çalışan bir ağ aracıdır. Telemetri, analiz, reklam veya
+DPI Bridge yerel çalışan bir ağ aracıdır. Telemetri, analiz, reklam veya
 uzak günlük toplama sistemi içermez.
 
 ## Uygulamanın işlemediği veriler
@@ -37,20 +37,21 @@ izin verir.
 
 ## Klavye ve Input Monitoring izni
 
-SplitWire klavye, fare veya trackpad girdilerini okumaz ve macOS **Input
+DPI Bridge klavye, fare veya trackpad girdilerini okumaz ve macOS **Input
 Monitoring / Giriş İzleme** iznine ihtiyaç duymaz. Discord, sistem genelinde
 Push-to-Talk veya başka global tuş kısayolları kullanıldığında kendi adına bu
 izni isteyebilir. Bu özellikleri kullanmıyorsan Discord'un isteğini de
 reddedebilirsin; metin ve sesli etkinlik modu çalışmaya devam eder.
 
-Beta 3 ve sonrasında Discord macOS Launch Services üzerinden başlatılır. Böylece
-Discord'un kendi global kısayol isteği SplitWire'a atfedilmez. Eski Beta 2 ile
-SplitWire'a izin verdiysen Sistem Ayarları → Gizlilik ve Güvenlik → Giriş İzleme
-altından SplitWire iznini kapatabilirsin.
+SplitWire-Turkey Beta 3 ve sonraki DPI Bridge sürümlerinde Discord macOS Launch
+Services üzerinden başlatılır. Böylece Discord'un kendi global kısayol isteği
+DPI Bridge'e atfedilmez. Eski SplitWire-Turkey Beta 2'ye izin verdiysen Sistem
+Ayarları → Gizlilik ve Güvenlik → Giriş İzleme altından bu eski izni
+kapatabilirsin.
 
 ## Kaldırma
 
 Uygulamayı ve DNS profilini kaldırma adımları
 [kullanım kılavuzunda](docs/KULLANIM.md)
 dosyasında açıklanır. Uygulama kaldırıldıktan sonra uzak bir hesapta tutulmuş
-SplitWire verisi yoktur.
+DPI Bridge verisi yoktur.

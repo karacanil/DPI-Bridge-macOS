@@ -15,16 +15,26 @@ Uygulama hesap parolası, mesaj, çerez veya ağ trafiği kaydetmez.
 Geliştirici araçlarına veya Python'a ihtiyaç yoktur.
 
 > **Beta notu:** Mevcut Intel paketi ad-hoc imzalıdır ve Apple tarafından
-> notarize edilmemiştir. macOS tanımlanamayan geliştirici uyarısı gösterebilir.
-> Gatekeeper'ı rastgele `xattr` veya `sudo` komutlarıyla devre dışı bırakma.
+> notarize edilmemiştir. Bu nedenle macOS, Apple'ın uygulamanın zararlı yazılım
+> içermediğini doğrulayamadığını belirten bir uyarı gösterir. Güvenli açma
+> adımları aşağıdadır; Gatekeeper'ı rastgele `xattr` veya `sudo` komutlarıyla
+> devre dışı bırakma.
 
 1. GitHub sayfasındaki **Releases** bölümünden Mac'inin işlemcisine uygun `.zip`
    dosyasını indir. Mevcut beta paketi yalnızca Intel (`x86_64`) Mac'ler içindir.
 2. Zip'i aç ve `SplitWire-Turkey.app` dosyasını **Applications** klasörüne taşı.
-3. Uygulamaya sağ tıklayıp **Aç** seçeneğini kullan.
-4. Uygulamada **Şifreli DNS Profilini Aç** düğmesine bas.
-5. Sistem Ayarları → Genel → Aygıt Yönetimi altında profili bir kez yükle.
-6. Ana ekrandaki **Discord'u Başlat** düğmesine bas.
+3. Uygulamayı bir kez açmayı dene ve uyarıda **Bitti / Done** seçeneğine bas.
+4. Sistem Ayarları → Gizlilik ve Güvenlik bölümünü aç, aşağı kaydır ve
+   SplitWire için **Yine de Aç / Open Anyway** düğmesine bas.
+5. Parolan veya Touch ID ile onaylayıp son uyarıda **Aç / Open** seçeneğini kullan.
+6. Uygulamada **Şifreli DNS Profilini Aç** düğmesine bas.
+7. Sistem Ayarları → Genel → Aygıt Yönetimi altında profili bir kez yükle.
+8. Ana ekrandaki **Discord'u Başlat** düğmesine bas.
+
+**Yine de Aç / Open Anyway** düğmesi ilk başarısız açma denemesinden sonra
+yaklaşık bir saat kullanılabilir. Bu işlem yalnızca bu uygulama için istisna
+oluşturur. Ayrıntılar için [Apple'ın resmi yönergesine](https://support.apple.com/guide/mac-help/open-an-app-by-overriding-security-settings-mh40617/mac)
+bakabilirsin.
 
 Şifreli DNS profili yalnızca alan adı çözümlemeyi Cloudflare DNS over HTTPS'e
 taşır. Profil kaldırılabilir; parola veya kullanıcıya özel bilgi içermez.
